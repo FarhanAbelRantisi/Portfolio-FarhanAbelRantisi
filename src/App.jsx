@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, Suspense, lazy } from 'react'
 import './App.css'
+import { supabase } from './supabaseClient'
+import AdminPage from './AdminPage'
 
 /* ========================================
    SPLINE 3D (lazy-loaded ~500KB+)
@@ -20,6 +22,126 @@ function SplineScene({ scene, className, onLoad }) {
     </Suspense>
   )
 }
+
+function FadeInSection({ children, className = "" }) {
+  const domRef = useRef(null)
+  const [isVisible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setVisible(true)
+          observer.unobserve(entry.target)
+        }
+      })
+    }, { threshold: 0.02 })
+
+    const current = domRef.current
+    if (current) observer.observe(current)
+    return () => {
+      if (current) observer.unobserve(current)
+    }
+  }, [])
+
+  return (
+    <div
+      ref={domRef}
+      className={`${className} fade-in-section ${isVisible ? 'is-visible' : ''}`}
+    >
+      {children}
+    </div>
+  )
+}
+
+// SVGs for Tech Stack
+const FlutterIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M14.314 0L2.3 12l3.7 3.7L21.684 0h-7.37zm0 24h7.37l-7.37-7.4-3.7 3.7 3.7 3.7zm-3.7-15.69l3.7-3.7 7.37 7.4h-7.37l-3.7-3.7z" />
+  </svg>
+)
+
+const ReactIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)" />
+    <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(90 12 12)" />
+    <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(150 12 12)" />
+    <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+  </svg>
+)
+
+const KotlinIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M24 24H0V0h24L12 12z" />
+  </svg>
+)
+
+const SwiftIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M22 13.8c-2.4 1.5-5.3 2.1-8.1 1.7-2.6-.4-5-1.7-6.8-3.5 0 0 6.1 1.1 9-.3 1.5-.7 2.8-1.8 3.7-3.2 0 0-3.3.4-5.3-.2-2.3-.7-4.2-2.3-5.2-4.5 0 0 1 3.4 0 5.4C8 11.8 6.2 13.3 4 14.2c2.8.3 5.7-.3 8.1-1.7 1.2-.7 2.2-1.7 2.9-2.9 0 0-.2 2 .5 3.5 1.1 2.3 3.4 4 6.5 4.7z" />
+  </svg>
+)
+
+const DartIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12.5 1.5L1.5 12.5l3.5 3.5 3.5-3.5H12v3.5l-3.5 3.5 3.5 3.5L22.5 12.5 12.5 1.5z" />
+  </svg>
+)
+
+const TypeScriptIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M0 0h24v24H0V0zm11.5 16.7h-2.1v-5.2H7.2V9.8h6.5v1.7h-2.2v5.2zm8.3-2.1c0 1.5-.8 2.2-2.3 2.2-1.2 0-2-.5-2.2-1.4h2c.1.4.5.6.9.6.5 0 .7-.2.7-.6 0-.9-2.3-.6-2.3-2.4 0-1.2.9-2.1 2.2-2.1 1.2 0 1.9.5 2.1 1.3h-1.9c-.1-.3-.4-.5-.8-.5-.4 0-.6.2-.6.5 0 1 2.3.7 2.3 2.4z" />
+  </svg>
+)
+
+const FirebaseIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M3.89 15.75L9.3 3.03c.14-.33.6-.33.74 0l2.06 4.82 1.48-2.82c.15-.28.56-.27.69.02l2.46 7.41-12.73 3.29zM19.98 16.2L16.8 6.55c-.14-.42-.76-.39-.85.05L12.43 18.2l7.55-2z" />
+  </svg>
+)
+
+const ApiIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+    <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+    <line x1="6" y1="6" x2="6.01" y2="6" />
+    <line x1="6" y1="18" x2="6.01" y2="18" />
+  </svg>
+)
+
+const GraphQLIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <polygon points="12,2 22,7.5 22,18.5 12,24 2,18.5 2,7.5" />
+    <line x1="12" y1="2" x2="12" y2="24" />
+    <line x1="2" y1="7.5" x2="22" y2="18.5" />
+    <line x1="2" y1="18.5" x2="22" y2="7.5" />
+    <circle cx="12" cy="12" r="3" fill="currentColor" />
+  </svg>
+)
+
+const GitIconSmall = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="18" x2="18" y2="18.01" />
+    <line x1="6" y1="6" x2="6" y2="6.01" />
+    <line x1="6" y1="18" x2="6" y2="18.01" />
+    <circle cx="18" cy="18" r="3" />
+    <circle cx="6" cy="6" r="3" />
+    <circle cx="6" cy="18" r="3" />
+    <path d="M18 15V9a4 4 0 0 0-4-4H9" />
+  </svg>
+)
+
+const CicdIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+  </svg>
+)
+
+const FigmaIconSmall = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5zM12 2h3.5a3.5 3.5 0 1 1 0 7H12V2zm0 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0zm-7 0A3.5 3.5 0 0 1 8.5 11H12v3.5a3.5 3.5 0 1 1-7 0zM5 12a3.5 3.5 0 0 1 3.5-3.5H12V16H8.5A3.5 3.5 0 0 1 5 12.5V12z" />
+  </svg>
+)
 
 /* ========================================
    ICONS (inline SVG components)
@@ -78,6 +200,40 @@ const AppStoreIcon = () => (
   </svg>
 )
 
+const WebIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" /><path d="M2 12h20" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+  </svg>
+)
+
+const FigmaIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5z" />
+    <path d="M12 2h3.5a3.5 3.5 0 1 1 0 7H12V2z" />
+    <path d="M12 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0z" />
+    <path d="M5 19.5A3.5 3.5 0 0 1 8.5 16H12v3.5a3.5 3.5 0 1 1-7 0z" />
+    <path d="M5 12.5A3.5 3.5 0 0 1 8.5 9H12v7H8.5A3.5 3.5 0 0 1 5 12.5z" />
+  </svg>
+)
+
+const ExternalLinkIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
+  </svg>
+)
+
+const CodeIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
+  </svg>
+)
+
+const InfoIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />
+  </svg>
+)
+
 /* ========================================
    DATA
    ======================================== */
@@ -100,7 +256,7 @@ const PROJECTS = [
     tech: ['Flutter', 'Firebase', 'Google Gemini API'],
     color: '#6366F1',
     platforms: ['android', 'ios'],
-    link: 'https://github.com/FarhanAbelRantisi/Lungify-App',
+    repoLink: 'https://github.com/FarhanAbelRantisi/Lungify-App',
   },
   {
     id: 2,
@@ -110,23 +266,23 @@ const PROJECTS = [
     description: 'AI-Powered Nutritional Information App',
     fullDescription: 'NutriSight is a mobile application developed as a final project for Google Developer Group on Campus (Mobile Development track). It provides a smart solution to help Indonesian consumers easily and accurately understand the nutritional content of packaged food products. The app utilizes OCR and AI-based Named Entity Recognition (NER) to extract nutrition information from product labels and present it as a simple health grade (A–D).',
     image: '/projects/porto_nutrisight.png',
-    tech: ['Flutter', 'Firebase', 'Google Cloud Vision API', 'Express JS'],
+    tech: ['Flutter', 'Firebase', 'Google Cloud Vision API', 'Express JS', 'FastAPI'],
     color: '#10B981',
     platforms: ['android', 'ios'],
-    link: 'https://github.com/FarhanAbelRantisi/NutriSight-App',
+    repoLink: 'https://github.com/FarhanAbelRantisi/NutriSight-App',
   },
   {
     id: 3,
     title: 'Roemah Bimbel',
     category: 'Website',
     year: '2026',
-    description: 'Smart food delivery app with AI-based recommendations and real-time order tracking.',
-    fullDescription: 'FoodFlow optimizes the logistics of food delivery by calculating the most efficient routes for drivers while providing real-time updates to customers. The app features a highly interactive map interface using Google Maps SDK.',
+    description: 'Website examination platform to facilitate SKD, Psychological, and Academic tests.',
+    fullDescription: 'Roemah Bimbel is a website platform designed to facilitate SKD, psychological, and academic tests for prospective students.',
     image: '/projects/porto_roemahbimbel.png',
-    tech: ['TypeScript', 'React JS', 'Tailwind CSS', 'PostgreSQL'],
+    tech: ['TypeScript', 'React JS', 'Tailwind CSS', 'PostgreSQL', 'Node JS'],
     color: '#F59E0B',
     platforms: ['web'],
-    link: 'https://roemahbimbel.com/',
+    projectLink: 'https://roemahbimbel.com/',
   },
   {
     id: 4,
@@ -136,10 +292,10 @@ const PROJECTS = [
     description: 'Payment Point Online Banking (PPOB) Platform',
     fullDescription: 'BisaTopup is a mobile application designed as part of the final company project at Amanah Karya Corp. on Bangkit Academy Batch 2 2024. It provides a user-friendly Payment Point Online Banking (PPOB) platform, enabling users to manage utility payments and mobile credit with ease.',
     image: '/projects/porto_bisatopup.png',
-    tech: ['Kotlin'],
+    tech: ['Kotlin', 'Jetpack Compose'],
     color: '#F59E0B',
     platforms: ['android'],
-    link: 'https://play.google.com/store/apps/details?id=com.rbtaskforce.bisatopup',
+    projectLink: 'https://play.google.com/store/apps/details?id=com.rbtaskforce.bisatopup',
   },
   {
     id: 5,
@@ -150,36 +306,77 @@ const PROJECTS = [
     fullDescription: 'TrashCash is a mobile application concept designed to digitize and simplify waste management through an integrated waste bank system. The app encourages sustainable behavior by enabling users to deposit recyclable waste, track its value, and access educational content about environmental impact and waste processing.',
     image: '/projects/porto_trashcash.png',
     tech: ['Figma'],
-    platforms: ['ui/ux design'],
-    link: 'https://www.behance.net/gallery/206840533/Trashcash-Team-Aruna',
+    color: '#8B5CF6',
+    platforms: ['figma'],
+    moreInfoLink: 'https://www.behance.net/gallery/206840533/Trashcash-Team-Aruna',
+  },
+  {
+    id: 6,
+    title: 'Tourbriz',
+    category: 'UI/UX Design',
+    year: '2025',
+    description: 'Travel and Tour Website Concept',
+    fullDescription: 'Tourbriz is a travel and tour website platform concept designed to digitize and simplify travel planning.',
+    image: '/projects/porto_tourbriz.png',
+    tech: ['Figma'],
+    color: '#EC4899',
+    platforms: ['figma'],
+    moreInfoLink: 'https://dribbble.com/shots/24653807-Tour-and-Travel-Website-Tourbriz?utm_source=Clipboard_Shot&utm_campaign=Farhanabel09&utm_content=Tour%20and%20Travel%20Website%20-%20Tourbriz&utm_medium=Social_Share',
   },
 ]
 
 const EXPERIENCES = [
   {
-    role: 'Senior Mobile Developer',
-    company: 'TechVenture Studio',
-    period: '2024 — Present',
+    role: 'Mobile Developer',
+    company: 'Aracorp Digital Ecosystem',
+    period: 'Aug 2025 - Present',
+    description: 'Developed Trustify, a Flutter-based mobile application for detecting and identifying spam, scam, and potentially harmful phone calls and SMS messages.',
+  },
+  {
+    role: 'Software Developer & UI/UX Design Freelancer',
+    company: 'Independent',
+    period: 'Apr 2025 — Present',
     description: 'Leading mobile development team, architecting cross-platform solutions with Flutter and React Native. Shipped 4+ apps with 100K+ downloads.',
   },
   {
-    role: 'Mobile Developer',
-    company: 'Digital Innovation Labs',
-    period: '2022 — 2024',
-    description: 'Built and maintained mobile applications for enterprise clients. Focused on performance optimization and clean architecture patterns.',
+    role: 'Mobile Development Team Member',
+    company: 'Google Developer Group on Campus',
+    period: 'Jan 2025 - Nov 2025',
+    description: 'Contributed to the development of several project-based applications as part of team initiatives and programs.',
   },
   {
-    role: 'Junior Mobile Developer',
-    company: 'StartUp Hub',
-    period: '2021 — 2022',
-    description: 'Developed MVP mobile applications for early-stage startups. Collaborated closely with design and product teams.',
+    role: 'IT Support',
+    company: 'Telkomsel',
+    period: 'Jun 2025 - Aug 2025',
+    description: 'Assisted operational issue resolution across Telkomsel regional branches in South Sumatra.',
+  },
+  {
+    role: 'Mobile Developer',
+    company: 'Amanah Karya Corp.',
+    period: 'Oct 2024 - Dec 2024',
+    description: 'Developed a Payment Point Online Banking (PPOB) application using Kotlin, Jetpack Compose, and Clean Architecture.',
+  },
+  {
+    role: 'UI/UX Designer',
+    company: 'Telkom Indonesia',
+    period: 'Jun 2023 - Aug 2023',
+    description: 'Designed UI/UX for a dashboard website to monitor intern performance in the FBB, MBB, and Access Operation units.',
   },
 ]
 
 const SKILLS = [
-  'Flutter', 'React Native', 'Kotlin', 'Swift',
-  'Dart', 'TypeScript', 'Firebase', 'REST API',
-  'GraphQL', 'Git', 'CI/CD', 'Figma',
+  { name: 'Flutter', color: '#02569B', icon: <FlutterIcon /> },
+  { name: 'React Native', color: '#61DAFB', icon: <ReactIcon /> },
+  { name: 'Kotlin', color: '#7F52FF', icon: <KotlinIcon /> },
+  { name: 'Swift', color: '#FA5108', icon: <SwiftIcon /> },
+  { name: 'Dart', color: '#0175C2', icon: <DartIcon /> },
+  { name: 'TypeScript', color: '#3178C6', icon: <TypeScriptIcon /> },
+  { name: 'Firebase', color: '#FFCA28', icon: <FirebaseIcon /> },
+  { name: 'REST API', color: '#009688', icon: <ApiIcon /> },
+  { name: 'GraphQL', color: '#E10098', icon: <GraphQLIcon /> },
+  { name: 'Git', color: '#F05032', icon: <GitIconSmall /> },
+  { name: 'CI/CD', color: '#2088FF', icon: <CicdIcon /> },
+  { name: 'Figma', color: '#F24E1E', icon: <FigmaIconSmall /> },
 ]
 
 /* ========================================
@@ -261,9 +458,9 @@ function Navbar() {
           ))}
         </div>
         <div className="mobile-menu__footer">
-          <a href="mailto:farhan@example.com" className="mobile-menu__social">Email</a>
-          <a href="#" className="mobile-menu__social">GitHub</a>
-          <a href="#" className="mobile-menu__social">LinkedIn</a>
+          <a href="mailto:farhanrantisi55@gmail.com" className="mobile-menu__social">Email</a>
+          <a href="https://github.com/FarhanAbelRantisi" className="mobile-menu__social">GitHub</a>
+          <a href="https://www.linkedin.com/in/farhanabelrantisi/" className="mobile-menu__social">LinkedIn</a>
         </div>
       </div>
     </>
@@ -491,6 +688,8 @@ function HeroSection() {
 function ProjectCard({ project, index, onOpen }) {
   const cardRef = useRef(null)
   const [isVisible, setIsVisible] = useState(false)
+  const spotlightRef = useRef(null)
+  const animFrameRef = useRef(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -501,13 +700,59 @@ function ProjectCard({ project, index, onOpen }) {
     return () => observer.disconnect()
   }, [])
 
+  // 3D Tilt + Spotlight tracking
+  const handleMouseMove = (e) => {
+    const card = cardRef.current
+    if (!card) return
+
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
+    animFrameRef.current = requestAnimationFrame(() => {
+      const rect = card.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+      const centerX = rect.width / 2
+      const centerY = rect.height / 2
+      const rotateX = ((y - centerY) / centerY) * -6 // max 6deg
+      const rotateY = ((x - centerX) / centerX) * 6
+
+      card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`
+
+      if (spotlightRef.current) {
+        spotlightRef.current.style.opacity = '1'
+        spotlightRef.current.style.background = `radial-gradient(
+          600px circle at ${x}px ${y}px,
+          ${project.color}18,
+          transparent 40%
+        )`
+      }
+    })
+  }
+
+  const handleMouseLeave = () => {
+    const card = cardRef.current
+    if (!card) return
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
+    card.style.transform = ''
+    if (spotlightRef.current) {
+      spotlightRef.current.style.opacity = '0'
+    }
+  }
+
   return (
     <div
       ref={cardRef}
       className={`project-card ${isVisible ? 'project-card--visible' : ''}`}
-      style={{ animationDelay: `${index * 100}ms` }}
+      style={{ animationDelay: `${index * 120}ms` }}
       id={`project-${project.id}`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
     >
+      {/* Spotlight overlay */}
+      <div ref={spotlightRef} className="project-card__spotlight" />
+
+      {/* Accent border glow on hover */}
+      <div className="project-card__glow" style={{ '--card-accent': project.color }} />
+
       <div className="project-card__visual" style={{ background: `${project.color}12`, cursor: 'pointer' }} onClick={() => onOpen(project)}>
         {project.image ? (
           <img src={project.image} alt={project.title} className="project-card__image" />
@@ -542,17 +787,36 @@ function ProjectCard({ project, index, onOpen }) {
           <div className="project-card__platforms">
             {project.platforms.includes('android') && <PlayStoreIcon />}
             {project.platforms.includes('ios') && <AppStoreIcon />}
+            {project.platforms.includes('web') && <WebIcon />}
+            {project.platforms.includes('figma') && <FigmaIcon />}
           </div>
-          <button onClick={() => onOpen(project)} className="project-card__link" style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', color: 'var(--color-accent)', padding: 0 }}>
-            View Case Study <ArrowUpRight />
-          </button>
+          <div className="project-card__links">
+            {project.projectLink && (
+              <a href={project.projectLink} target="_blank" rel="noreferrer" className="project-card__link" title="Live Project">
+                <ExternalLinkIcon /> Live
+              </a>
+            )}
+            {project.repoLink && (
+              <a href={project.repoLink} target="_blank" rel="noreferrer" className="project-card__link" title="Source Code">
+                <GithubIcon /> Repo
+              </a>
+            )}
+            {project.moreInfoLink && (
+              <a href={project.moreInfoLink} target="_blank" rel="noreferrer" className="project-card__link" title="More Info">
+                <InfoIcon /> Info
+              </a>
+            )}
+            <button onClick={() => onOpen(project)} className="project-card__link project-card__link--detail">
+              Detail <ArrowUpRight />
+            </button>
+          </div>
         </div>
       </div>
     </div>
   )
 }
 
-function ProjectsSection() {
+function ProjectsSection({ projects }) {
   const [selectedProject, setSelectedProject] = useState(null)
 
   return (
@@ -562,12 +826,12 @@ function ProjectsSection() {
           <span className="section__label">Selected Work</span>
           <h2 className="section__title">Projects I've crafted</h2>
           <p className="section__subtitle">
-            A selection of mobile applications I've designed and developed,
-            each solving real-world problems with clean, performant code.
+            A curated selection of projects spanning mobile apps, web platforms,
+            and UI/UX designs — each crafted with precision and purpose.
           </p>
         </div>
         <div className="projects__grid">
-          {PROJECTS.map((project, i) => (
+          {projects.map((project, i) => (
             <ProjectCard key={project.id} project={project} index={i} onOpen={setSelectedProject} />
           ))}
         </div>
@@ -586,7 +850,15 @@ function ProjectsSection() {
               </div>
             )}
             <div className="project-modal__body">
-              <span className="project-modal__category">{selectedProject.category} • {selectedProject.year}</span>
+              <div className="project-modal__meta-row">
+                <span className="project-modal__category">{selectedProject.category} • {selectedProject.year}</span>
+                <div className="project-modal__platforms">
+                  {selectedProject.platforms.includes('android') && <PlayStoreIcon />}
+                  {selectedProject.platforms.includes('ios') && <AppStoreIcon />}
+                  {selectedProject.platforms.includes('web') && <WebIcon />}
+                  {selectedProject.platforms.includes('figma') && <FigmaIcon />}
+                </div>
+              </div>
               <h2 className="project-modal__title">{selectedProject.title}</h2>
               <div className="project-modal__tech">
                 {selectedProject.tech.map(t => (
@@ -595,11 +867,23 @@ function ProjectsSection() {
               </div>
               <p className="project-modal__desc">{selectedProject.fullDescription || selectedProject.description}</p>
 
-              {selectedProject.link && (
-                <a href={selectedProject.link} target="_blank" rel="noreferrer" className="btn btn--primary" style={{ marginTop: '24px', display: 'inline-flex' }}>
-                  View Live / Repo <ArrowUpRight />
-                </a>
-              )}
+              <div className="project-modal__actions">
+                {selectedProject.projectLink && (
+                  <a href={selectedProject.projectLink} target="_blank" rel="noreferrer" className="btn btn--primary">
+                    <ExternalLinkIcon /> Live Project
+                  </a>
+                )}
+                {selectedProject.repoLink && (
+                  <a href={selectedProject.repoLink} target="_blank" rel="noreferrer" className="btn btn--outline">
+                    <GithubIcon /> Source Code
+                  </a>
+                )}
+                {selectedProject.moreInfoLink && (
+                  <a href={selectedProject.moreInfoLink} target="_blank" rel="noreferrer" className="btn btn--outline">
+                    <InfoIcon /> More Info
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -614,7 +898,7 @@ function ProjectsSection() {
 function AboutSection() {
   return (
     <section className="section about" id="about">
-      <div className="container">
+      <FadeInSection className="container">
         <div className="about__layout">
           <div className="about__left">
             <span className="section__label">About Me</span>
@@ -644,13 +928,20 @@ function AboutSection() {
               <h3 className="about__skills-title">Tech Stack</h3>
               <div className="about__skills-grid">
                 {SKILLS.map(skill => (
-                  <span key={skill} className="about__skill-tag">{skill}</span>
+                  <span
+                    key={skill.name}
+                    className="about__skill-tag"
+                    style={{ '--skill-color': skill.color }}
+                  >
+                    {skill.icon}
+                    <span>{skill.name}</span>
+                  </span>
                 ))}
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </FadeInSection>
     </section>
   )
 }
@@ -658,10 +949,10 @@ function AboutSection() {
 /* ========================================
    EXPERIENCE SECTION
    ======================================== */
-function ExperienceSection() {
+function ExperienceSection({ experiences }) {
   return (
     <section className="section experience" id="experience">
-      <div className="container">
+      <FadeInSection className="container">
         <div className="section__header">
           <span className="section__label">Experience</span>
           <h2 className="section__title">Where I've worked</h2>
@@ -671,7 +962,7 @@ function ExperienceSection() {
           </p>
         </div>
         <div className="experience__list">
-          {EXPERIENCES.map((exp, i) => (
+          {experiences.map((exp, i) => (
             <div key={i} className="experience__item" id={`experience-${i}`}>
               <div className="experience__item-left">
                 <span className="experience__period">{exp.period}</span>
@@ -684,7 +975,7 @@ function ExperienceSection() {
             </div>
           ))}
         </div>
-      </div>
+      </FadeInSection>
     </section>
   )
 }
@@ -695,7 +986,7 @@ function ExperienceSection() {
 function ContactSection() {
   return (
     <section className="section contact" id="contact">
-      <div className="container">
+      <FadeInSection className="container">
         <div className="contact__layout">
           <div className="contact__left">
             <span className="section__label">Get in Touch</span>
@@ -707,20 +998,20 @@ function ContactSection() {
               or opportunities to be part of your vision.
             </p>
             <div className="contact__links">
-              <a href="mailto:farhan@example.com" className="contact__link" id="contact-email">
+              <a href="mailto:farhanrantisi55@gmail.com" className="contact__link" id="contact-email">
                 <EmailIcon />
-                <span>farhan@example.com</span>
+                <span>farhanrantisi55@gmail.com</span>
               </a>
-              <a href="tel:+62812345678" className="contact__link" id="contact-phone">
+              <a href="tel:+6288269639683" className="contact__link" id="contact-phone">
                 <PhoneIcon />
-                <span>+62 812 345 678</span>
+                <span>+62 882 6963 9683</span>
               </a>
             </div>
             <div className="contact__socials">
-              <a href="#" className="contact__social" aria-label="GitHub" id="contact-github">
+              <a href="https://github.com/FarhanAbelRantisi" className="contact__social" aria-label="GitHub" id="contact-github">
                 <GithubIcon />
               </a>
-              <a href="#" className="contact__social" aria-label="LinkedIn" id="contact-linkedin">
+              <a href="https://www.linkedin.com/in/farhanabelrantisi/" className="contact__social" aria-label="LinkedIn" id="contact-linkedin">
                 <LinkedInIcon />
               </a>
             </div>
@@ -746,7 +1037,7 @@ function ContactSection() {
             </form>
           </div>
         </div>
-      </div>
+      </FadeInSection>
     </section>
   )
 }
@@ -781,14 +1072,71 @@ function Footer() {
    APP
    ======================================== */
 function App() {
+  const [projectsList, setProjectsList] = useState(PROJECTS)
+  const [experiencesList, setExperiencesList] = useState(EXPERIENCES)
+  const [currentPath, setCurrentPath] = useState(window.location.pathname)
+
+  useEffect(() => {
+    // Client-side router popstate tracking
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname)
+    }
+    window.addEventListener('popstate', handlePopState)
+
+    // Fetch live entries from Supabase if connected
+    const fetchDbData = async () => {
+      if (!supabase) return
+      try {
+        const { data: dbProj, error: projErr } = await supabase
+          .from('projects')
+          .select('*')
+          .order('id', { ascending: true })
+
+        if (!projErr && dbProj && dbProj.length > 0) {
+          const mappedProj = dbProj.map(p => ({
+            ...p,
+            fullDescription: p.full_description || p.description,
+            repoLink: p.repo_link,
+            projectLink: p.project_link,
+            moreInfoLink: p.more_info_link
+          }))
+          setProjectsList(mappedProj)
+        }
+
+        const { data: dbExp, error: expErr } = await supabase
+          .from('experiences')
+          .select('*')
+          .order('id', { ascending: true })
+
+        if (!expErr && dbExp && dbExp.length > 0) {
+          setExperiencesList(dbExp)
+        }
+      } catch (e) {
+        console.error('Failed to load DB content, using local fallback:', e)
+      }
+    }
+
+    fetchDbData()
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  if (currentPath === '/farhan-admin-secure') {
+    return (
+      <AdminPage 
+        hardcodedProjects={PROJECTS} 
+        hardcodedExperiences={EXPERIENCES} 
+      />
+    )
+  }
+
   return (
     <>
       <Navbar />
       <main>
         <HeroSection />
-        <ProjectsSection />
+        <ProjectsSection projects={projectsList} />
         <AboutSection />
-        <ExperienceSection />
+        <ExperienceSection experiences={experiencesList} />
         <ContactSection />
       </main>
       <Footer />
