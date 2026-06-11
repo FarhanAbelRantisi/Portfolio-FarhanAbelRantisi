@@ -27,6 +27,7 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
     description: '',
     full_description: '',
     image: '',
+    video_url: '',
     tech: '',
     color: '#6366F1',
     platforms: [],
@@ -86,10 +87,51 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
     }
   }
 
+  const [uploadingVideo, setUploadingVideo] = useState(false)
+
+  // Handle video upload to Supabase storage
+  const handleVideoUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file || !supabase) return
+
+    setUploadingVideo(true)
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`
+      const filePath = `videos/${fileName}`
+
+      const { data, error } = await supabase.storage
+        .from('project-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
+
+      if (error) {
+        if (error.message.includes('bucket') || error.message.includes('does not exist')) {
+          throw new Error("Storage bucket 'project-images' not found. Please create a public bucket named 'project-images' in Supabase first!")
+        }
+        throw error
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('project-images')
+        .getPublicUrl(filePath)
+
+      setProjectForm(prev => ({ ...prev, video_url: publicUrl }))
+      showStatus('Video uploaded successfully!')
+    } catch (error) {
+      console.error('Video upload error:', error)
+      showStatus(error.message, 'error')
+    } finally {
+      setUploadingVideo(false)
+    }
+  }
+
   // Check Session on Mount
   useEffect(() => {
     if (!supabase) return
-    
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
     })
@@ -181,6 +223,7 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
           description: p.description,
           full_description: p.fullDescription || p.description,
           image: p.image,
+          video_url: p.videoUrl || '',
           tech: p.tech || [],
           color: p.color || '#6366F1',
           platforms: p.platforms || [],
@@ -227,6 +270,7 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       description: '',
       full_description: '',
       image: '',
+      video_url: '',
       tech: '',
       color: '#6366F1',
       platforms: [],
@@ -246,6 +290,7 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       description: proj.description || '',
       full_description: proj.full_description || '',
       image: proj.image || '',
+      video_url: proj.video_url || '',
       tech: Array.isArray(proj.tech) ? proj.tech.join(', ') : '',
       color: proj.color || '#6366F1',
       platforms: proj.platforms || [],
@@ -259,7 +304,7 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
   const handlePlatformCheckbox = (platform) => {
     setProjectForm(prev => {
       const isSelected = prev.platforms.includes(platform)
-      const newPlatforms = isSelected 
+      const newPlatforms = isSelected
         ? prev.platforms.filter(p => p !== platform)
         : [...prev.platforms, platform]
       return { ...prev, platforms: newPlatforms }
@@ -282,6 +327,7 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       description: projectForm.description,
       full_description: projectForm.full_description,
       image: projectForm.image,
+      video_url: projectForm.video_url,
       tech: formattedTech,
       color: projectForm.color,
       platforms: projectForm.platforms,
@@ -407,9 +453,9 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
           <div className="admin-login-logo">f.</div>
           <h2>Admin Secure Login</h2>
           <p className="admin-login-subtitle">Manage portfolio projects & experiences</p>
-          
+
           {loginError && <div className="admin-error-box">{loginError}</div>}
-          
+
           {!supabase && (
             <div className="admin-warning-box">
               <strong>Supabase Connection Missing</strong>
@@ -442,8 +488,8 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
                 onChange={e => setPassword(e.target.value)}
               />
             </div>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="admin-btn-login"
               disabled={loading || !supabase}
             >
@@ -493,13 +539,13 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       <main className="admin-content">
         {/* Navigation Tabs */}
         <div className="admin-tabs">
-          <button 
+          <button
             className={`admin-tab ${activeTab === 'projects' ? 'is-active' : ''}`}
             onClick={() => setActiveTab('projects')}
           >
             📂 Projects ({projects.length})
           </button>
-          <button 
+          <button
             className={`admin-tab ${activeTab === 'experiences' ? 'is-active' : ''}`}
             onClick={() => setActiveTab('experiences')}
           >
@@ -655,17 +701,17 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
               <div className="admin-form-row">
                 <div className="admin-form-group">
                   <label>Title *</label>
-                  <input 
-                    type="text" 
-                    required 
-                    value={projectForm.title} 
-                    onChange={e => setProjectForm(prev => ({ ...prev, title: e.target.value }))} 
+                  <input
+                    type="text"
+                    required
+                    value={projectForm.title}
+                    onChange={e => setProjectForm(prev => ({ ...prev, title: e.target.value }))}
                   />
                 </div>
                 <div className="admin-form-group">
                   <label>Category *</label>
-                  <select 
-                    value={projectForm.category} 
+                  <select
+                    value={projectForm.category}
                     onChange={e => setProjectForm(prev => ({ ...prev, category: e.target.value }))}
                   >
                     <option value="Mobile Apps">Mobile Apps</option>
@@ -678,26 +724,26 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
               <div className="admin-form-row">
                 <div className="admin-form-group">
                   <label>Year</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. 2025" 
-                    value={projectForm.year} 
-                    onChange={e => setProjectForm(prev => ({ ...prev, year: e.target.value }))} 
+                  <input
+                    type="text"
+                    placeholder="e.g. 2025"
+                    value={projectForm.year}
+                    onChange={e => setProjectForm(prev => ({ ...prev, year: e.target.value }))}
                   />
                 </div>
                 <div className="admin-form-group">
                   <label>Accent Color</label>
                   <div className="admin-color-picker-row">
-                    <input 
-                      type="color" 
-                      value={projectForm.color} 
-                      onChange={e => setProjectForm(prev => ({ ...prev, color: e.target.value }))} 
+                    <input
+                      type="color"
+                      value={projectForm.color}
+                      onChange={e => setProjectForm(prev => ({ ...prev, color: e.target.value }))}
                     />
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="#6366F1"
-                      value={projectForm.color} 
-                      onChange={e => setProjectForm(prev => ({ ...prev, color: e.target.value }))} 
+                      value={projectForm.color}
+                      onChange={e => setProjectForm(prev => ({ ...prev, color: e.target.value }))}
                     />
                   </div>
                 </div>
@@ -705,19 +751,19 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
 
               <div className="admin-form-group">
                 <label>Short Description (Hero card summary)</label>
-                <input 
-                  type="text" 
-                  value={projectForm.description} 
-                  onChange={e => setProjectForm(prev => ({ ...prev, description: e.target.value }))} 
+                <input
+                  type="text"
+                  value={projectForm.description}
+                  onChange={e => setProjectForm(prev => ({ ...prev, description: e.target.value }))}
                 />
               </div>
 
               <div className="admin-form-group">
                 <label>Full Description (Modal Detail)</label>
-                <textarea 
-                  rows="4" 
-                  value={projectForm.full_description} 
-                  onChange={e => setProjectForm(prev => ({ ...prev, full_description: e.target.value }))} 
+                <textarea
+                  rows="4"
+                  value={projectForm.full_description}
+                  onChange={e => setProjectForm(prev => ({ ...prev, full_description: e.target.value }))}
                 />
               </div>
 
@@ -725,10 +771,10 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
                 <div className="admin-form-group">
                   <label>Cover Image</label>
                   <div className="admin-upload-field">
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleImageUpload} 
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
                       id="project-image-file"
                       className="admin-file-input"
                       style={{ display: 'none' }}
@@ -736,11 +782,11 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
                     <label htmlFor="project-image-file" className="admin-upload-btn">
                       {uploadingImage ? 'Uploading...' : '📁 Upload Local Image'}
                     </label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="Or enter image URL"
-                      value={projectForm.image} 
-                      onChange={e => setProjectForm(prev => ({ ...prev, image: e.target.value }))} 
+                      value={projectForm.image}
+                      onChange={e => setProjectForm(prev => ({ ...prev, image: e.target.value }))}
                       className="admin-url-input"
                     />
                   </div>
@@ -751,48 +797,77 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
                   )}
                 </div>
                 <div className="admin-form-group">
-                  <label>Tech Stack (comma separated)</label>
-                  <input 
-                    type="text" 
-                    placeholder="Flutter, Firebase, Dart"
-                    value={projectForm.tech} 
-                    onChange={e => setProjectForm(prev => ({ ...prev, tech: e.target.value }))} 
-                  />
+                  <label>Project Video</label>
+                  <div className="admin-upload-field">
+                    <input
+                      type="file"
+                      accept="video/*"
+                      onChange={handleVideoUpload}
+                      id="project-video-file"
+                      className="admin-file-input"
+                      style={{ display: 'none' }}
+                    />
+                    <label htmlFor="project-video-file" className="admin-upload-btn">
+                      {uploadingVideo ? 'Uploading...' : '🎥 Upload Local Video'}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Or enter video URL"
+                      value={projectForm.video_url}
+                      onChange={e => setProjectForm(prev => ({ ...prev, video_url: e.target.value }))}
+                      className="admin-url-input"
+                    />
+                  </div>
+                  {projectForm.video_url && (
+                    <div className="admin-upload-preview">
+                      <video src={projectForm.video_url} controls muted style={{ maxWidth: '100%', maxHeight: '160px' }} />
+                    </div>
+                  )}
                 </div>
+              </div>
+
+              <div className="admin-form-group">
+                <label>Tech Stack (comma separated)</label>
+                <input
+                  type="text"
+                  placeholder="Flutter, Firebase, Dart"
+                  value={projectForm.tech}
+                  onChange={e => setProjectForm(prev => ({ ...prev, tech: e.target.value }))}
+                />
               </div>
 
               <div className="admin-form-group">
                 <label>Platforms</label>
                 <div className="admin-checkbox-row">
                   <label className="admin-checkbox-label">
-                    <input 
-                      type="checkbox" 
-                      checked={projectForm.platforms.includes('android')} 
-                      onChange={() => handlePlatformCheckbox('android')} 
+                    <input
+                      type="checkbox"
+                      checked={projectForm.platforms.includes('android')}
+                      onChange={() => handlePlatformCheckbox('android')}
                     />
                     Android
                   </label>
                   <label className="admin-checkbox-label">
-                    <input 
-                      type="checkbox" 
-                      checked={projectForm.platforms.includes('ios')} 
-                      onChange={() => handlePlatformCheckbox('ios')} 
+                    <input
+                      type="checkbox"
+                      checked={projectForm.platforms.includes('ios')}
+                      onChange={() => handlePlatformCheckbox('ios')}
                     />
                     iOS
                   </label>
                   <label className="admin-checkbox-label">
-                    <input 
-                      type="checkbox" 
-                      checked={projectForm.platforms.includes('web')} 
-                      onChange={() => handlePlatformCheckbox('web')} 
+                    <input
+                      type="checkbox"
+                      checked={projectForm.platforms.includes('web')}
+                      onChange={() => handlePlatformCheckbox('web')}
                     />
                     Web
                   </label>
                   <label className="admin-checkbox-label">
-                    <input 
-                      type="checkbox" 
-                      checked={projectForm.platforms.includes('figma')} 
-                      onChange={() => handlePlatformCheckbox('figma')} 
+                    <input
+                      type="checkbox"
+                      checked={projectForm.platforms.includes('figma')}
+                      onChange={() => handlePlatformCheckbox('figma')}
                     />
                     Figma
                   </label>
@@ -802,29 +877,29 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
               <div className="admin-form-row">
                 <div className="admin-form-group">
                   <label>Live Project Link</label>
-                  <input 
-                    type="url" 
+                  <input
+                    type="url"
                     placeholder="https://..."
-                    value={projectForm.project_link} 
-                    onChange={e => setProjectForm(prev => ({ ...prev, project_link: e.target.value }))} 
+                    value={projectForm.project_link}
+                    onChange={e => setProjectForm(prev => ({ ...prev, project_link: e.target.value }))}
                   />
                 </div>
                 <div className="admin-form-group">
                   <label>Source Code Link (GitHub)</label>
-                  <input 
-                    type="url" 
+                  <input
+                    type="url"
                     placeholder="https://github.com/..."
-                    value={projectForm.repo_link} 
-                    onChange={e => setProjectForm(prev => ({ ...prev, repo_link: e.target.value }))} 
+                    value={projectForm.repo_link}
+                    onChange={e => setProjectForm(prev => ({ ...prev, repo_link: e.target.value }))}
                   />
                 </div>
                 <div className="admin-form-group">
                   <label>More Info Link</label>
-                  <input 
-                    type="url" 
+                  <input
+                    type="url"
                     placeholder="https://..."
-                    value={projectForm.more_info_link} 
-                    onChange={e => setProjectForm(prev => ({ ...prev, more_info_link: e.target.value }))} 
+                    value={projectForm.more_info_link}
+                    onChange={e => setProjectForm(prev => ({ ...prev, more_info_link: e.target.value }))}
                   />
                 </div>
               </div>
@@ -854,41 +929,41 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
               <div className="admin-form-row">
                 <div className="admin-form-group">
                   <label>Role / Job Title *</label>
-                  <input 
-                    type="text" 
-                    required 
-                    value={expForm.role} 
-                    onChange={e => setExpForm(prev => ({ ...prev, role: e.target.value }))} 
+                  <input
+                    type="text"
+                    required
+                    value={expForm.role}
+                    onChange={e => setExpForm(prev => ({ ...prev, role: e.target.value }))}
                   />
                 </div>
                 <div className="admin-form-group">
                   <label>Company / Organization *</label>
-                  <input 
-                    type="text" 
-                    required 
-                    value={expForm.company} 
-                    onChange={e => setExpForm(prev => ({ ...prev, company: e.target.value }))} 
+                  <input
+                    type="text"
+                    required
+                    value={expForm.company}
+                    onChange={e => setExpForm(prev => ({ ...prev, company: e.target.value }))}
                   />
                 </div>
               </div>
 
               <div className="admin-form-group">
                 <label>Period *</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="e.g. Jun 2025 - Aug 2025"
-                  required 
-                  value={expForm.period} 
-                  onChange={e => setExpForm(prev => ({ ...prev, period: e.target.value }))} 
+                  required
+                  value={expForm.period}
+                  onChange={e => setExpForm(prev => ({ ...prev, period: e.target.value }))}
                 />
               </div>
 
               <div className="admin-form-group">
                 <label>Description / Key Achievements</label>
-                <textarea 
-                  rows="4" 
-                  value={expForm.description} 
-                  onChange={e => setExpForm(prev => ({ ...prev, description: e.target.value }))} 
+                <textarea
+                  rows="4"
+                  value={expForm.description}
+                  onChange={e => setExpForm(prev => ({ ...prev, description: e.target.value }))}
                 />
               </div>
 

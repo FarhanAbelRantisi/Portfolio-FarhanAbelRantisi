@@ -818,6 +818,22 @@ function ProjectCard({ project, index, onOpen }) {
 
 function ProjectsSection({ projects }) {
   const [selectedProject, setSelectedProject] = useState(null)
+  const [activeSlide, setActiveSlide] = useState(0)
+
+  useEffect(() => {
+    setActiveSlide(0)
+  }, [selectedProject])
+
+  // Prepare slides list
+  const slides = []
+  if (selectedProject) {
+    if (selectedProject.image) {
+      slides.push({ type: 'image', url: selectedProject.image })
+    }
+    if (selectedProject.videoUrl) {
+      slides.push({ type: 'video', url: selectedProject.videoUrl })
+    }
+  }
 
   return (
     <section className="section projects" id="projects">
@@ -844,9 +860,42 @@ function ProjectsSection({ projects }) {
             <button className="project-modal__close" onClick={() => setSelectedProject(null)}>
               <CloseIcon />
             </button>
-            {selectedProject.image && (
-              <div className="project-modal__image-wrapper">
-                <img src={selectedProject.image} alt={selectedProject.title} className="project-modal__image" />
+            {slides.length > 0 && (
+              <div className="project-modal__media-container">
+                <div className="project-modal__media-slide">
+                  {slides[activeSlide].type === 'image' ? (
+                    <img src={slides[activeSlide].url} alt={selectedProject.title} className="project-modal__image" />
+                  ) : (
+                    <video src={slides[activeSlide].url} controls autoPlay muted playsInline className="project-modal__video" />
+                  )}
+                </div>
+                {slides.length > 1 && (
+                  <div className="project-modal__slides-nav">
+                    <button
+                      onClick={() => setActiveSlide(prev => (prev === 0 ? slides.length - 1 : prev - 1))}
+                      className="project-modal__nav-btn"
+                      aria-label="Previous slide"
+                    >
+                      &larr;
+                    </button>
+                    <div className="project-modal__indicators">
+                      {slides.map((_, idx) => (
+                        <span
+                          key={idx}
+                          onClick={() => setActiveSlide(idx)}
+                          className={`project-modal__indicator ${activeSlide === idx ? 'is-active' : ''}`}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => setActiveSlide(prev => (prev === slides.length - 1 ? 0 : prev + 1))}
+                      className="project-modal__nav-btn"
+                      aria-label="Next slide"
+                    >
+                      &rarr;
+                    </button>
+                  </div>
+                )}
               </div>
             )}
             <div className="project-modal__body">
@@ -1098,7 +1147,8 @@ function App() {
             fullDescription: p.full_description || p.description,
             repoLink: p.repo_link,
             projectLink: p.project_link,
-            moreInfoLink: p.more_info_link
+            moreInfoLink: p.more_info_link,
+            videoUrl: p.video_url
           }))
           setProjectsList(mappedProj)
         }

@@ -803,24 +803,84 @@
   background: rgba(0, 0, 0, 0.5);
 }
 
-.project-modal__image-wrapper {
+.project-modal__media-container {
   width: 100%;
-  height: 380px;
-  /* Ukuran tetap yang sedikit lebih besar */
+  height: 400px;
+  position: relative;
   overflow: hidden;
   background: var(--color-bg-alt);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
 }
 
-.project-modal__image {
+.project-modal__media-slide {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.project-modal__image,
+.project-modal__video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Zoom in untuk mengisi penuh frame */
   object-position: center;
-  /* Fokus ke bagian tengah */
+}
+
+.project-modal__slides-nav {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(0, 0, 0, 0.01);
+  backdrop-filter: blur(8px);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  z-index: 10;
+}
+
+.project-modal__nav-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+}
+
+.project-modal__nav-btn:hover {
+  opacity: 0.7;
+}
+
+.project-modal__indicators {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.project-modal__indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.project-modal__indicator.is-active {
+  background: var(--color-accent);
+  transform: scale(1.2);
 }
 
 .project-modal__body {
@@ -990,7 +1050,7 @@
   transform: translateY(-5px) scale(1.05);
   box-shadow:
     0 10px 20px -8px color-mix(in srgb, var(--skill-color) 60%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--skill-color) 20%, transparent);
+    0 0 0 1px color-mix(in srgb, var(--skill-color), transparent);
 }
 
 .about__skill-tag:hover svg {
