@@ -336,7 +336,7 @@ const EXPERIENCES = [
     role: 'Software Developer & UI/UX Design Freelancer',
     company: 'Independent',
     period: 'Apr 2025 — Present',
-    description: 'Leading mobile development team, architecting cross-platform solutions with Flutter and React Native. Shipped 4+ apps with 100K+ downloads.',
+    description: 'Leading mobile development team, architecting cross-platform solutions with Flutter and Kotlin. Delivering end-to-end applications from UI/UX design to robust code implementations.',
   },
   {
     role: 'Mobile Development Team Member',
@@ -622,32 +622,31 @@ function HeroSection() {
             <h1 className="hero__title" style={{ visibility: 'hidden', height: '300px', marginBottom: '10px', overflow: 'hidden' }}>
               I'm <em className="hero__name">Farhan</em>,{' '}
               <span className="hero__title-rest">
-                a digital creator building apps, web & experiences
+                a developer & designer.
               </span>
             </h1>
             <div className="hero__content-bottom">
               <div className="hero__left-block">
                 <div className="hero__stats" style={{ visibility: 'hidden' }}>
                   <div className="hero__stat">
-                    <span className="hero__stat-number">4+</span>
+                    <span className="hero__stat-number">2+</span>
                     <span className="hero__stat-label">Years Experience</span>
                   </div>
                   <div className="hero__stat-divider"></div>
                   <div className="hero__stat">
-                    <span className="hero__stat-number">20+</span>
-          <span className="hero__stat-label">Projects Shipped</span>
+                    <span className="hero__stat-number">10+</span>
+                    <span className="hero__stat-label">Projects Built</span>
                   </div>
                   <div className="hero__stat-divider"></div>
                   <div className="hero__stat">
-                    <span className="hero__stat-number">100K+</span>
-                    <span className="hero__stat-label">Downloads</span>
+                    <span className="hero__stat-number">50+</span>
+                    <span className="hero__stat-label">Screens Designed</span>
                   </div>
                 </div>
                 {/* Mobile: subtitle + actions move here, below hero 3D area */}
                 <p className="hero__subtitle hero__subtitle--mobile">
-                  From mobile apps to web platforms and UI/UX design —
-                  I craft digital products that are beautiful, fast, and
-                  built to make an impact.
+                  I build mobile apps, websites, and user interfaces.
+                  I focus on creating clean, intuitive experiences that just work.
                 </p>
 
                 <div className="hero__actions hero__actions--mobile">
@@ -663,18 +662,18 @@ function HeroSection() {
 
               <div className="hero__stats hero__stats--desktop">
                 <div className="hero__stat">
-                  <span className="hero__stat-number">4+</span>
+                  <span className="hero__stat-number">2+</span>
                   <span className="hero__stat-label">Years Experience</span>
                 </div>
                 <div className="hero__stat-divider"></div>
                 <div className="hero__stat">
-                  <span className="hero__stat-number">20+</span>
-                  <span className="hero__stat-label">Apps Delivered</span>
+                  <span className="hero__stat-number">10+</span>
+                  <span className="hero__stat-label">Projects Built</span>
                 </div>
                 <div className="hero__stat-divider"></div>
                 <div className="hero__stat">
-                  <span className="hero__stat-number">100K+</span>
-                  <span className="hero__stat-label">Downloads</span>
+                  <span className="hero__stat-number">50+</span>
+                  <span className="hero__stat-label">Screens Designed</span>
                 </div>
               </div>
             </div>
@@ -685,27 +684,26 @@ function HeroSection() {
       {/* Mobile-only stats bar — rendered OUTSIDE the 3D hero section */}
       <div className="hero__mobile-stats-bar">
         <div className="hero__stat">
-          <span className="hero__stat-number">4+</span>
+          <span className="hero__stat-number">2+</span>
           <span className="hero__stat-label">Years Experience</span>
         </div>
         <div className="hero__stat-divider"></div>
         <div className="hero__stat">
-          <span className="hero__stat-number">20+</span>
-          <span className="hero__stat-label">Projects Shipped</span>
+          <span className="hero__stat-number">10+</span>
+          <span className="hero__stat-label">Projects Built</span>
         </div>
         <div className="hero__stat-divider"></div>
         <div className="hero__stat">
-          <span className="hero__stat-number">100K+</span>
-          <span className="hero__stat-label">Downloads</span>
+          <span className="hero__stat-number">50+</span>
+          <span className="hero__stat-label">Screens Designed</span>
         </div>
       </div>
 
       {/* Mobile-only text block — subtitle + actions below stats bar */}
       <div className="hero__mobile-text">
         <p className="hero__subtitle">
-          From mobile apps to web platforms and UI/UX design —
-          I craft digital products that are beautiful, fast,
-          and built to make an impact.
+          I build mobile apps, websites, and user interfaces.
+          I focus on creating clean, intuitive experiences that just work.
         </p>
         <div className="hero__actions">
           <a href="#projects" className="btn btn--primary" id="hero-cta-projects-m">
@@ -879,8 +877,7 @@ function ProjectsSection({ projects }) {
           <span className="section__label">Selected Work</span>
           <h2 className="section__title">Work I'm proud of</h2>
           <p className="section__subtitle">
-            A curated portfolio spanning mobile apps, web platforms, and UI/UX design —
-            each project solving real problems with thoughtful craft.
+            Here are some of the things I've built across mobile, web, and design.
           </p>
         </div>
         <div className="projects__grid">
@@ -979,20 +976,13 @@ function AboutSection() {
           </div>
           <div className="about__right">
             <p className="about__text">
-              Hi, I'm <strong>Farhan Abel Rantisi</strong> — a multi-disciplinary developer
-              and designer who builds across the full digital spectrum. From Flutter & React Native
-              mobile apps to React web platforms, and from Kotlin native code to Figma-crafted
-              UI/UX designs, I bring ideas to life end-to-end.
+              Hi, I'm <strong>Farhan</strong>. I'm a developer and designer. I enjoy building things from scratch—whether it's a mobile app using Flutter or Kotlin, a website, or designing the interface in Figma.
             </p>
             <p className="about__text">
-              I believe the best digital products live at the intersection of
-              <strong> great design and solid engineering</strong>. Whether it's a mobile app
-              with 100K+ downloads, an exam platform serving thousands of students, or a
-              UI concept that wins on Behance — I care deeply about craft at every layer.
+              For me, good design and good code go hand in hand. Whether I'm building a mobile app from scratch, developing a web platform, or designing an intuitive user interface, I care deeply about creating digital experiences that people actually enjoy using.
             </p>
             <p className="about__text">
-              Currently open to freelance projects and collaborations across mobile, web,
-              and UI/UX — if you have an idea worth building, let's make it real.
+              I'm currently taking on freelance projects. If you need help building an app, a website, or designing a product, let's talk.
             </p>
             <div className="about__skills">
               <h3 className="about__skills-title">Tech Stack</h3>
@@ -1027,8 +1017,7 @@ function ExperienceSection({ experiences }) {
           <span className="section__label">Experience</span>
           <h2 className="section__title">Where I've worked</h2>
           <p className="section__subtitle">
-            My journey building digital products — mobile apps, web platforms,
-            and design systems — across different industries and teams.
+            A brief look at my work history and the teams I've been a part of.
           </p>
         </div>
         <div className="experience__list">
@@ -1054,6 +1043,35 @@ function ExperienceSection({ experiences }) {
    CONTACT SECTION
    ======================================== */
 function ContactSection() {
+  const [status, setStatus] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('sending');
+    const form = e.target;
+    const data = new FormData(form);
+    
+    try {
+      const response = await fetch('https://formspree.io/f/xwvjrgly', {
+        method: 'POST',
+        body: data,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        setStatus('success');
+        form.reset();
+        setTimeout(() => setStatus(''), 3000);
+      } else {
+        setStatus('error');
+      }
+    } catch (error) {
+      setStatus('error');
+    }
+  };
+
   return (
     <section className="section contact" id="contact">
       <FadeInSection className="container">
@@ -1061,12 +1079,10 @@ function ContactSection() {
           <div className="contact__left">
             <span className="section__label">Get in Touch</span>
             <h2 className="contact__title">
-              Got an idea?<br />Let's <em>build it</em>.
+              Let's build<br />something <em>together</em>.
             </h2>
             <p className="contact__subtitle">
-              Whether it's a mobile app, a web platform, or a design system —
-              I'm open to new projects, creative collaborations, and opportunities
-              to help turn your vision into something real.
+              If you have a project in mind, need some help with an existing one, or just want to say hi—feel free to reach out.
             </p>
             <div className="contact__links">
               <a href="mailto:farhanrantisi55@gmail.com" className="contact__link" id="contact-email">
@@ -1088,27 +1104,35 @@ function ContactSection() {
             </div>
           </div>
           <div className="contact__right">
-            <form className="contact__form" id="contact-form" onSubmit={e => e.preventDefault()}>
+            <form className="contact__form" id="contact-form" onSubmit={handleSubmit}>
               <div className="contact__form-group">
                 <label className="contact__form-label" htmlFor="contact-name">Name</label>
-                <input type="text" id="contact-name" className="contact__form-input" placeholder="Your name" />
+                <input type="text" id="contact-name" name="name" className="contact__form-input" placeholder="Your name" required />
               </div>
               <div className="contact__form-group">
                 <label className="contact__form-label" htmlFor="contact-email-input">Email</label>
-                <input type="email" id="contact-email-input" className="contact__form-input" placeholder="your@email.com" />
+                <input type="email" id="contact-email-input" name="email" className="contact__form-input" placeholder="your@email.com" required />
               </div>
               <div className="contact__form-group">
                 <label className="contact__form-label" htmlFor="contact-message">Message</label>
-                <textarea id="contact-message" className="contact__form-input contact__form-textarea" placeholder="Tell me about your project..." rows="5"></textarea>
+                <textarea id="contact-message" name="message" className="contact__form-input contact__form-textarea" placeholder="Tell me about your project..." rows="5" required></textarea>
               </div>
-              <button type="submit" className="btn btn--primary btn--full" id="contact-submit">
-                Send Message
-                <ArrowUpRight />
+              <button type="submit" className="btn btn--primary btn--full" id="contact-submit" disabled={status === 'sending'}>
+                {status === 'sending' ? 'Sending...' : status === 'success' ? 'Message Sent!' : 'Send Message'}
+                {status !== 'sending' && status !== 'success' && <ArrowUpRight />}
               </button>
+              {status === 'error' && <p style={{ color: '#ff4d4d', marginTop: '16px', fontSize: '14px' }}>Oops! There was a problem submitting your form. Please try again.</p>}
             </form>
           </div>
         </div>
       </FadeInSection>
+      {/* Toast Notification */}
+      <div className={`toast ${status === 'success' ? 'toast--visible' : ''}`}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>Message sent successfully!</span>
+      </div>
     </section>
   )
 }
