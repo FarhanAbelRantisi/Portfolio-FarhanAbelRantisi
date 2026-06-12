@@ -499,6 +499,16 @@
   background: var(--color-border);
 }
 
+/* Mobile stats bar — hidden by default on desktop */
+.hero__mobile-stats-bar {
+  display: none;
+}
+
+/* Mobile text block (subtitle + CTA) — hidden by default on desktop */
+.hero__mobile-text {
+  display: none;
+}
+
 /* ========================================
    PROJECTS
    ======================================== */
@@ -1301,7 +1311,70 @@
     flex-direction: column;
   }
 
-  .hero__stats {
-    flex-wrap: wrap;
+  /* --- Hero section mobile layout --- */
+
+  /* Hero section: fixed height, clip the 3D to this container */
+  .hero {
+    min-height: 75vw;
+    max-height: 460px;
+    overflow: hidden;
+  }
+
+  /* Spline bg container: fill full width */
+  .hero__spline-bg {
+    transform: none !important;
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    overflow: hidden;
+  }
+
+  /* Make the Spline canvas zoom in (scale) to fill horizontally and crop top */
+  .hero__spline-bg canvas,
+  .hero__spline-bg spline-viewer,
+  .hero__spline-bg iframe {
+    width: 100% !important;
+    transform: scale(1.6) translateY(-5%) !important;
+    transform-origin: center 40% !important;
+  }
+
+  /* Hide the overlay on mobile (badge + hidden title + content-bottom) */
+  .hero__overlay {
+    display: none !important;
+  }
+
+  /* Mobile-only stats bar — visible on mobile, directly below hero section */
+  .hero__mobile-stats-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: var(--space-xl) var(--space-lg);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border-light);
+    gap: var(--space-md);
+  }
+
+  /* Desktop stats — hide on mobile */
+  .hero__stats--desktop {
+    display: none !important;
+  }
+
+  /* Mobile text block — show subtitle + CTA buttons below stats bar */
+  .hero__mobile-text {
+    display: block;
+    padding: var(--space-xl) var(--space-lg);
+    background: var(--color-bg);
+  }
+
+  .hero__mobile-text .hero__subtitle {
+    font-size: var(--text-base);
+    margin-bottom: var(--space-lg);
+    max-width: 100%;
+  }
+
+  .hero__mobile-text .hero__actions {
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: 0;
   }
 }

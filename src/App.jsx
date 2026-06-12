@@ -601,32 +601,67 @@ function HeroSection() {
   }
 
   return (
-    <section className="hero" id="hero">
-      {/* Full-screen 3D background */}
-      <div className="hero__spline-bg" id="spline-container">
-        <SplineScene
-          scene="https://prod.spline.design/WAeofjQyEIkU-qty/scene.splinecode"
-          onLoad={handleSplineLoad}
-        />
-      </div>
+    <div className="hero-wrapper">
+      <section className="hero" id="hero">
+        {/* Full-screen 3D background */}
+        <div className="hero__spline-bg" id="spline-container">
+          <SplineScene
+            scene="https://prod.spline.design/WAeofjQyEIkU-qty/scene.splinecode"
+            onLoad={handleSplineLoad}
+          />
+        </div>
 
-      {/* Text overlay on top of the 3D scene */}
-      <div className="hero__overlay">
-        <div className={`hero__text ${mounted ? 'hero__text--visible' : ''}`}>
-          <div className="hero__badge">
-            <span className="hero__badge-dot"></span>
-            Available for new projects
-          </div>
-          {/* visibility: hidden menyembunyikan teks. height & margin-bottom membatasi besarnya space */}
-          <h1 className="hero__title" style={{ visibility: 'hidden', height: '300px', marginBottom: '10px', overflow: 'hidden' }}>
-            I'm <em className="hero__name">Farhan</em>,{' '}
-            <span className="hero__title-rest">
-              a mobile developer crafting digital experiences
-            </span>
-          </h1>
-          <div className="hero__content-bottom">
-            <div className="hero__left-block">
-              <div className="hero__stats" style={{ visibility: 'hidden' }}>
+        {/* Text overlay on top of the 3D scene */}
+        <div className="hero__overlay">
+          <div className={`hero__text ${mounted ? 'hero__text--visible' : ''}`}>
+            <div className="hero__badge">
+              <span className="hero__badge-dot"></span>
+              Available for new projects
+            </div>
+            {/* visibility: hidden menyembunyikan teks. height & margin-bottom membatasi besarnya space */}
+            <h1 className="hero__title" style={{ visibility: 'hidden', height: '300px', marginBottom: '10px', overflow: 'hidden' }}>
+              I'm <em className="hero__name">Farhan</em>,{' '}
+              <span className="hero__title-rest">
+                a digital creator building apps, web & experiences
+              </span>
+            </h1>
+            <div className="hero__content-bottom">
+              <div className="hero__left-block">
+                <div className="hero__stats" style={{ visibility: 'hidden' }}>
+                  <div className="hero__stat">
+                    <span className="hero__stat-number">4+</span>
+                    <span className="hero__stat-label">Years Experience</span>
+                  </div>
+                  <div className="hero__stat-divider"></div>
+                  <div className="hero__stat">
+                    <span className="hero__stat-number">20+</span>
+          <span className="hero__stat-label">Projects Shipped</span>
+                  </div>
+                  <div className="hero__stat-divider"></div>
+                  <div className="hero__stat">
+                    <span className="hero__stat-number">100K+</span>
+                    <span className="hero__stat-label">Downloads</span>
+                  </div>
+                </div>
+                {/* Mobile: subtitle + actions move here, below hero 3D area */}
+                <p className="hero__subtitle hero__subtitle--mobile">
+                  From mobile apps to web platforms and UI/UX design —
+                  I craft digital products that are beautiful, fast, and
+                  built to make an impact.
+                </p>
+
+                <div className="hero__actions hero__actions--mobile">
+                  <a href="#projects" className="btn btn--primary" id="hero-cta-projects">
+                    View Projects
+                    <ArrowUpRight />
+                  </a>
+                  <a href="#contact" className="btn btn--outline" id="hero-cta-contact">
+                    Get in Touch
+                  </a>
+                </div>
+              </div>
+
+              <div className="hero__stats hero__stats--desktop">
                 <div className="hero__stat">
                   <span className="hero__stat-number">4+</span>
                   <span className="hero__stat-label">Years Experience</span>
@@ -642,43 +677,47 @@ function HeroSection() {
                   <span className="hero__stat-label">Downloads</span>
                 </div>
               </div>
-              <p className="hero__subtitle">
-                Specializing in building premium mobile applications
-                with Flutter, React Native, and native technologies
-                that users love.
-              </p>
-
-              <div className="hero__actions">
-                <a href="#projects" className="btn btn--primary" id="hero-cta-projects">
-                  View Projects
-                  <ArrowUpRight />
-                </a>
-                <a href="#contact" className="btn btn--outline" id="hero-cta-contact">
-                  Get in Touch
-                </a>
-              </div>
-            </div>
-
-            <div className="hero__stats">
-              <div className="hero__stat">
-                <span className="hero__stat-number">4+</span>
-                <span className="hero__stat-label">Years Experience</span>
-              </div>
-              <div className="hero__stat-divider"></div>
-              <div className="hero__stat">
-                <span className="hero__stat-number">20+</span>
-                <span className="hero__stat-label">Apps Delivered</span>
-              </div>
-              <div className="hero__stat-divider"></div>
-              <div className="hero__stat">
-                <span className="hero__stat-number">100K+</span>
-                <span className="hero__stat-label">Downloads</span>
-              </div>
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Mobile-only stats bar — rendered OUTSIDE the 3D hero section */}
+      <div className="hero__mobile-stats-bar">
+        <div className="hero__stat">
+          <span className="hero__stat-number">4+</span>
+          <span className="hero__stat-label">Years Experience</span>
+        </div>
+        <div className="hero__stat-divider"></div>
+        <div className="hero__stat">
+          <span className="hero__stat-number">20+</span>
+          <span className="hero__stat-label">Projects Shipped</span>
+        </div>
+        <div className="hero__stat-divider"></div>
+        <div className="hero__stat">
+          <span className="hero__stat-number">100K+</span>
+          <span className="hero__stat-label">Downloads</span>
+        </div>
       </div>
-    </section>
+
+      {/* Mobile-only text block — subtitle + actions below stats bar */}
+      <div className="hero__mobile-text">
+        <p className="hero__subtitle">
+          From mobile apps to web platforms and UI/UX design —
+          I craft digital products that are beautiful, fast,
+          and built to make an impact.
+        </p>
+        <div className="hero__actions">
+          <a href="#projects" className="btn btn--primary" id="hero-cta-projects-m">
+            View Projects
+            <ArrowUpRight />
+          </a>
+          <a href="#contact" className="btn btn--outline" id="hero-cta-contact-m">
+            Get in Touch
+          </a>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -838,10 +877,10 @@ function ProjectsSection({ projects }) {
       <div className="container">
         <div className="section__header">
           <span className="section__label">Selected Work</span>
-          <h2 className="section__title">Projects I've crafted</h2>
+          <h2 className="section__title">Work I'm proud of</h2>
           <p className="section__subtitle">
-            A curated selection of projects spanning mobile apps, web platforms,
-            and UI/UX designs — each crafted with precision and purpose.
+            A curated portfolio spanning mobile apps, web platforms, and UI/UX design —
+            each project solving real problems with thoughtful craft.
           </p>
         </div>
         <div className="projects__grid">
@@ -934,26 +973,26 @@ function AboutSection() {
           <div className="about__left">
             <span className="section__label">About Me</span>
             <h2 className="section__title">
-              Turning ideas into<br />
-              <em>mobile reality</em>
+              Building across<br />
+              <em>every dimension</em>
             </h2>
           </div>
           <div className="about__right">
             <p className="about__text">
-              Hi, I'm <strong>Farhan Abel Rantisi</strong> — a mobile developer with a passion
-              for creating beautiful, functional applications. I specialize in
-              cross-platform development using Flutter and React Native, as well as
-              native Android (Kotlin) and iOS (Swift) development.
+              Hi, I'm <strong>Farhan Abel Rantisi</strong> — a multi-disciplinary developer
+              and designer who builds across the full digital spectrum. From Flutter & React Native
+              mobile apps to React web platforms, and from Kotlin native code to Figma-crafted
+              UI/UX designs, I bring ideas to life end-to-end.
             </p>
             <p className="about__text">
-              I believe great mobile apps are born from the intersection of
-              thoughtful design and solid engineering. Every project I take on
-              is an opportunity to push the boundaries of what's possible on mobile.
+              I believe the best digital products live at the intersection of
+              <strong> great design and solid engineering</strong>. Whether it's a mobile app
+              with 100K+ downloads, an exam platform serving thousands of students, or a
+              UI concept that wins on Behance — I care deeply about craft at every layer.
             </p>
             <p className="about__text">
-              When I'm not coding, you'll find me exploring new technologies,
-              contributing to open-source projects, or sharing knowledge with the
-              developer community.
+              Currently open to freelance projects and collaborations across mobile, web,
+              and UI/UX — if you have an idea worth building, let's make it real.
             </p>
             <div className="about__skills">
               <h3 className="about__skills-title">Tech Stack</h3>
@@ -988,8 +1027,8 @@ function ExperienceSection({ experiences }) {
           <span className="section__label">Experience</span>
           <h2 className="section__title">Where I've worked</h2>
           <p className="section__subtitle">
-            My professional journey building mobile products across
-            different industries and company stages.
+            My journey building digital products — mobile apps, web platforms,
+            and design systems — across different industries and teams.
           </p>
         </div>
         <div className="experience__list">
@@ -1022,11 +1061,12 @@ function ContactSection() {
           <div className="contact__left">
             <span className="section__label">Get in Touch</span>
             <h2 className="contact__title">
-              Want to create<br />something <em>awesome</em>?
+              Got an idea?<br />Let's <em>build it</em>.
             </h2>
             <p className="contact__subtitle">
-              I'm always open to discussing new projects, creative ideas,
-              or opportunities to be part of your vision.
+              Whether it's a mobile app, a web platform, or a design system —
+              I'm open to new projects, creative collaborations, and opportunities
+              to help turn your vision into something real.
             </p>
             <div className="contact__links">
               <a href="mailto:farhanrantisi55@gmail.com" className="contact__link" id="contact-email">
