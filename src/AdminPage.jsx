@@ -26,8 +26,8 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
     year: '',
     description: '',
     full_description: '',
-    image: '',
-    video_url: '',
+    images: [],
+    videos: [],
     tech: '',
     color: '#6366F1',
     platforms: [],
@@ -48,7 +48,7 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
   const [statusMessage, setStatusMessage] = useState({ type: '', text: '' })
   const [uploadingImage, setUploadingImage] = useState(false)
 
-  // Handle image upload to Supabase storage
+  // Handle image upload to Supabase storage (appends to images array)
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file || !supabase) return
@@ -77,19 +77,24 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
         .from('project-images')
         .getPublicUrl(filePath)
 
-      setProjectForm(prev => ({ ...prev, image: publicUrl }))
+      setProjectForm(prev => ({ ...prev, images: [...prev.images, publicUrl] }))
       showStatus('Image uploaded successfully!')
     } catch (error) {
       console.error('Upload error:', error)
       showStatus(error.message, 'error')
     } finally {
       setUploadingImage(false)
+      e.target.value = ''
     }
+  }
+
+  const removeImage = (idx) => {
+    setProjectForm(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))
   }
 
   const [uploadingVideo, setUploadingVideo] = useState(false)
 
-  // Handle video upload to Supabase storage
+  // Handle video upload to Supabase storage (appends to videos array)
   const handleVideoUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file || !supabase) return
@@ -118,14 +123,19 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
         .from('project-images')
         .getPublicUrl(filePath)
 
-      setProjectForm(prev => ({ ...prev, video_url: publicUrl }))
+      setProjectForm(prev => ({ ...prev, videos: [...prev.videos, publicUrl] }))
       showStatus('Video uploaded successfully!')
     } catch (error) {
       console.error('Video upload error:', error)
       showStatus(error.message, 'error')
     } finally {
       setUploadingVideo(false)
+      e.target.value = ''
     }
+  }
+
+  const removeVideo = (idx) => {
+    setProjectForm(prev => ({ ...prev, videos: prev.videos.filter((_, i) => i !== idx) }))
   }
 
   // Check Session on Mount
@@ -222,8 +232,8 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
           year: p.year,
           description: p.description,
           full_description: p.fullDescription || p.description,
-          image: p.image,
-          video_url: p.videoUrl || '',
+          images: p.image ? [p.image] : (p.images || []),
+          videos: p.videoUrl ? [p.videoUrl] : (p.videos || []),
           tech: p.tech || [],
           color: p.color || '#6366F1',
           platforms: p.platforms || [],
@@ -269,8 +279,8 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       year: new Date().getFullYear().toString(),
       description: '',
       full_description: '',
-      image: '',
-      video_url: '',
+      images: [],
+      videos: [],
       tech: '',
       color: '#6366F1',
       platforms: [],
@@ -289,8 +299,8 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       year: proj.year || '',
       description: proj.description || '',
       full_description: proj.full_description || '',
-      image: proj.image || '',
-      video_url: proj.video_url || '',
+      images: Array.isArray(proj.images) ? proj.images : (proj.image ? [proj.image] : []),
+      videos: Array.isArray(proj.videos) ? proj.videos : (proj.video_url ? [proj.video_url] : []),
       tech: Array.isArray(proj.tech) ? proj.tech.join(', ') : '',
       color: proj.color || '#6366F1',
       platforms: proj.platforms || [],
@@ -326,8 +336,8 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       year: projectForm.year,
       description: projectForm.description,
       full_description: projectForm.full_description,
-      image: projectForm.image,
-      video_url: projectForm.video_url,
+      images: projectForm.images,
+      videos: projectForm.videos,
       tech: formattedTech,
       color: projectForm.color,
       platforms: projectForm.platforms,
@@ -767,63 +777,60 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
                 />
               </div>
 
-              <div className="admin-form-row">
-                <div className="admin-form-group">
-                  <label>Cover Image</label>
-                  <div className="admin-upload-field">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      id="project-image-file"
-                      className="admin-file-input"
-                      style={{ display: 'none' }}
-                    />
-                    <label htmlFor="project-image-file" className="admin-upload-btn">
-                      {uploadingImage ? 'Uploading...' : '📁 Upload Local Image'}
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Or enter image URL"
-                      value={projectForm.image}
-                      onChange={e => setProjectForm(prev => ({ ...prev, image: e.target.value }))}
-                      className="admin-url-input"
-                    />
-                  </div>
-                  {projectForm.image && (
-                    <div className="admin-upload-preview">
-                      <img src={projectForm.image} alt="Preview" />
-                    </div>
-                  )}
+              <div className="admin-form-group">
+                <label>Images ({projectForm.images.length} uploaded)</label>
+                <div className="admin-upload-field">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    id="project-image-file"
+                    className="admin-file-input"
+                    style={{ display: 'none' }}
+                  />
+                  <label htmlFor="project-image-file" className="admin-upload-btn">
+                    {uploadingImage ? 'Uploading...' : '📁 Add Image'}
+                  </label>
                 </div>
-                <div className="admin-form-group">
-                  <label>Project Video</label>
-                  <div className="admin-upload-field">
-                    <input
-                      type="file"
-                      accept="video/*"
-                      onChange={handleVideoUpload}
-                      id="project-video-file"
-                      className="admin-file-input"
-                      style={{ display: 'none' }}
-                    />
-                    <label htmlFor="project-video-file" className="admin-upload-btn">
-                      {uploadingVideo ? 'Uploading...' : '🎥 Upload Local Video'}
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Or enter video URL"
-                      value={projectForm.video_url}
-                      onChange={e => setProjectForm(prev => ({ ...prev, video_url: e.target.value }))}
-                      className="admin-url-input"
-                    />
+                {projectForm.images.length > 0 && (
+                  <div className="admin-media-list">
+                    {projectForm.images.map((url, idx) => (
+                      <div key={idx} className="admin-media-item">
+                        <img src={url} alt={`Image ${idx + 1}`} className="admin-media-thumb" />
+                        <span className="admin-media-label">Image {idx + 1}</span>
+                        <button type="button" className="admin-media-remove" onClick={() => removeImage(idx)}>✕</button>
+                      </div>
+                    ))}
                   </div>
-                  {projectForm.video_url && (
-                    <div className="admin-upload-preview">
-                      <video src={projectForm.video_url} controls muted style={{ maxWidth: '100%', maxHeight: '160px' }} />
-                    </div>
-                  )}
+                )}
+              </div>
+
+              <div className="admin-form-group">
+                <label>Videos ({projectForm.videos.length} uploaded)</label>
+                <div className="admin-upload-field">
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoUpload}
+                    id="project-video-file"
+                    className="admin-file-input"
+                    style={{ display: 'none' }}
+                  />
+                  <label htmlFor="project-video-file" className="admin-upload-btn">
+                    {uploadingVideo ? 'Uploading...' : '🎥 Add Video'}
+                  </label>
                 </div>
+                {projectForm.videos.length > 0 && (
+                  <div className="admin-media-list">
+                    {projectForm.videos.map((url, idx) => (
+                      <div key={idx} className="admin-media-item">
+                        <video src={url} muted className="admin-media-thumb" />
+                        <span className="admin-media-label">Video {idx + 1}</span>
+                        <button type="button" className="admin-media-remove" onClick={() => removeVideo(idx)}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="admin-form-group">

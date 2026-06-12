@@ -754,8 +754,8 @@ function ProjectCard({ project, index, onOpen }) {
       <div className="project-card__glow" style={{ '--card-accent': project.color }} />
 
       <div className="project-card__visual" style={{ background: `${project.color}12`, cursor: 'pointer' }} onClick={() => onOpen(project)}>
-        {project.image ? (
-          <img src={project.image} alt={project.title} className="project-card__image" />
+        {(project.images?.[0] || project.image) ? (
+          <img src={project.images?.[0] || project.image} alt={project.title} className="project-card__image" />
         ) : (
           /* Placeholder jika tidak ada gambar */
           <div className="project-card__phone" style={{ borderColor: `${project.color}30` }}>
@@ -824,15 +824,13 @@ function ProjectsSection({ projects }) {
     setActiveSlide(0)
   }, [selectedProject])
 
-  // Prepare slides list
+  // Prepare slides list from arrays
   const slides = []
   if (selectedProject) {
-    if (selectedProject.image) {
-      slides.push({ type: 'image', url: selectedProject.image })
-    }
-    if (selectedProject.videoUrl) {
-      slides.push({ type: 'video', url: selectedProject.videoUrl })
-    }
+    const images = Array.isArray(selectedProject.images) ? selectedProject.images : (selectedProject.image ? [selectedProject.image] : [])
+    const videos = Array.isArray(selectedProject.videos) ? selectedProject.videos : (selectedProject.videoUrl ? [selectedProject.videoUrl] : [])
+    images.forEach(url => url && slides.push({ type: 'image', url }))
+    videos.forEach(url => url && slides.push({ type: 'video', url }))
   }
 
   return (
@@ -870,30 +868,14 @@ function ProjectsSection({ projects }) {
                   )}
                 </div>
                 {slides.length > 1 && (
-                  <div className="project-modal__slides-nav">
-                    <button
-                      onClick={() => setActiveSlide(prev => (prev === 0 ? slides.length - 1 : prev - 1))}
-                      className="project-modal__nav-btn"
-                      aria-label="Previous slide"
-                    >
-                      &larr;
-                    </button>
-                    <div className="project-modal__indicators">
-                      {slides.map((_, idx) => (
-                        <span
-                          key={idx}
-                          onClick={() => setActiveSlide(idx)}
-                          className={`project-modal__indicator ${activeSlide === idx ? 'is-active' : ''}`}
-                        />
-                      ))}
-                    </div>
-                    <button
-                      onClick={() => setActiveSlide(prev => (prev === slides.length - 1 ? 0 : prev + 1))}
-                      className="project-modal__nav-btn"
-                      aria-label="Next slide"
-                    >
-                      &rarr;
-                    </button>
+                  <div className="project-modal__dots">
+                    {slides.map((_, idx) => (
+                      <span
+                        key={idx}
+                        onClick={() => setActiveSlide(idx)}
+                        className={`project-modal__dot ${activeSlide === idx ? 'is-active' : ''}`}
+                      />
+                    ))}
                   </div>
                 )}
               </div>
@@ -1148,7 +1130,8 @@ function App() {
             repoLink: p.repo_link,
             projectLink: p.project_link,
             moreInfoLink: p.more_info_link,
-            videoUrl: p.video_url
+            images: p.images || (p.image ? [p.image] : []),
+            videos: p.videos || (p.video_url ? [p.video_url] : [])
           }))
           setProjectsList(mappedProj)
         }
