@@ -182,6 +182,18 @@ const EmailIcon = () => (
   </svg>
 )
 
+const InstagramIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+)
+
+const MapPinIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle>
+  </svg>
+)
+
 const PhoneIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -238,10 +250,10 @@ const InfoIcon = () => (
    DATA
    ======================================== */
 const NAV_LINKS = [
-  { label: 'Projects', href: '#projects' },
-  { label: 'About', href: '#about' },
-  { label: 'Experience', href: '#experience' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Projects', href: '/#projects' },
+  { label: 'About', href: '/#about' },
+  { label: 'Experience', href: '/#experience' },
+  { label: 'Contact', href: '/#contact' },
 ]
 
 const PROJECTS = [
@@ -365,24 +377,21 @@ const EXPERIENCES = [
 ]
 
 const SKILLS = [
-  { name: 'Flutter', color: '#02569B', icon: <FlutterIcon /> },
-  { name: 'React Native', color: '#61DAFB', icon: <ReactIcon /> },
-  { name: 'Kotlin', color: '#7F52FF', icon: <KotlinIcon /> },
-  { name: 'Swift', color: '#FA5108', icon: <SwiftIcon /> },
-  { name: 'Dart', color: '#0175C2', icon: <DartIcon /> },
-  { name: 'TypeScript', color: '#3178C6', icon: <TypeScriptIcon /> },
-  { name: 'Firebase', color: '#FFCA28', icon: <FirebaseIcon /> },
+  { name: 'Flutter', color: '#02569B', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/flutter/flutter-original.svg', icon: <FlutterIcon /> },
+  { name: 'Kotlin', color: '#7F52FF', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kotlin/kotlin-original.svg', icon: <KotlinIcon /> },
+  { name: 'Dart', color: '#0175C2', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/dart/dart-original.svg', icon: <DartIcon /> },
+  { name: 'TypeScript', color: '#3178C6', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg', icon: <TypeScriptIcon /> },
+  { name: 'Firebase', color: '#FFCA28', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/firebase/firebase-original.svg', icon: <FirebaseIcon /> },
   { name: 'REST API', color: '#009688', icon: <ApiIcon /> },
-  { name: 'GraphQL', color: '#E10098', icon: <GraphQLIcon /> },
-  { name: 'Git', color: '#F05032', icon: <GitIconSmall /> },
-  { name: 'CI/CD', color: '#2088FF', icon: <CicdIcon /> },
-  { name: 'Figma', color: '#F24E1E', icon: <FigmaIconSmall /> },
+  { name: 'Git', color: '#F05032', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg', icon: <GitIconSmall /> },
+  { name: 'CI/CD', color: '#2088FF', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-original.svg', icon: <CicdIcon /> },
+  { name: 'Figma', color: '#F24E1E', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg', icon: <FigmaIconSmall /> },
 ]
 
 /* ========================================
    NAVBAR COMPONENT
    ======================================== */
-function Navbar() {
+function Navbar({ onNavClick }) {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -408,13 +417,13 @@ function Navbar() {
 
           <div className="navbar__links">
             {NAV_LINKS.map(link => (
-              <a key={link.href} href={link.href} className="navbar__link">
+              <a key={link.href} href={link.href} className="navbar__link" onClick={(e) => onNavClick && onNavClick(e, link.href)}>
                 {link.label}
               </a>
             ))}
           </div>
 
-          <a href="#contact" className="navbar__cta">Let's Talk</a>
+          <a href="/#contact" className="navbar__cta" onClick={(e) => onNavClick && onNavClick(e, '/#contact')}>Let's Talk</a>
 
           <button
             className="navbar__menu-btn"
@@ -450,7 +459,10 @@ function Navbar() {
               href={link.href}
               className="mobile-menu__link"
               style={{ animationDelay: `${i * 80}ms` }}
-              onClick={() => setMobileOpen(false)}
+              onClick={(e) => {
+                setMobileOpen(false)
+                if (onNavClick) onNavClick(e, link.href)
+              }}
             >
               <span className="mobile-menu__link-num">0{i + 1}</span>
               {link.label}
@@ -722,7 +734,7 @@ function HeroSection() {
 /* ========================================
    PROJECTS SECTION
    ======================================== */
-function ProjectCard({ project, index, onOpen }) {
+function ProjectCard({ project, index, onNavigate }) {
   const cardRef = useRef(null)
   const [isVisible, setIsVisible] = useState(false)
   const spotlightRef = useRef(null)
@@ -790,7 +802,7 @@ function ProjectCard({ project, index, onOpen }) {
       {/* Accent border glow on hover */}
       <div className="project-card__glow" style={{ '--card-accent': project.color }} />
 
-      <div className="project-card__visual" style={{ background: `${project.color}12`, cursor: 'pointer' }} onClick={() => onOpen(project)}>
+      <div className="project-card__visual" style={{ background: `${project.color}12`, cursor: 'pointer' }} onClick={() => onNavigate(`/project/${project.id}`)}>
         {(project.images?.[0] || project.image) ? (
           <img src={project.images?.[0] || project.image} alt={project.title} className="project-card__image" loading="lazy" />
         ) : (
@@ -813,7 +825,7 @@ function ProjectCard({ project, index, onOpen }) {
           <span className="project-card__category">{project.category}</span>
           <span className="project-card__year">{project.year}</span>
         </div>
-        <h3 className="project-card__title" style={{ cursor: 'pointer' }} onClick={() => onOpen(project)}>{project.title}</h3>
+        <h3 className="project-card__title" style={{ cursor: 'pointer' }} onClick={() => onNavigate(`/project/${project.id}`)}>{project.title}</h3>
         <p className="project-card__desc">{project.description}</p>
         <div className="project-card__tech">
           {project.tech.map(t => (
@@ -843,7 +855,7 @@ function ProjectCard({ project, index, onOpen }) {
                 <InfoIcon /> Info
               </a>
             )}
-            <button onClick={() => onOpen(project)} className="project-card__link project-card__link--detail">
+            <button onClick={() => onNavigate(`/project/${project.id}`)} className="project-card__link project-card__link--detail">
               Detail <ArrowUpRight />
             </button>
           </div>
@@ -853,23 +865,7 @@ function ProjectCard({ project, index, onOpen }) {
   )
 }
 
-function ProjectsSection({ projects }) {
-  const [selectedProject, setSelectedProject] = useState(null)
-  const [activeSlide, setActiveSlide] = useState(0)
-
-  useEffect(() => {
-    setActiveSlide(0)
-  }, [selectedProject])
-
-  // Prepare slides list from arrays
-  const slides = []
-  if (selectedProject) {
-    const images = Array.isArray(selectedProject.images) ? selectedProject.images : (selectedProject.image ? [selectedProject.image] : [])
-    const videos = Array.isArray(selectedProject.videos) ? selectedProject.videos : (selectedProject.videoUrl ? [selectedProject.videoUrl] : [])
-    images.forEach(url => url && slides.push({ type: 'image', url }))
-    videos.forEach(url => url && slides.push({ type: 'video', url }))
-  }
-
+function ProjectsSection({ projects, onNavigate }) {
   return (
     <section className="section projects" id="projects">
       <div className="container">
@@ -882,87 +878,211 @@ function ProjectsSection({ projects }) {
         </div>
         <div className="projects__grid">
           {projects.map((project, i) => (
-            <ProjectCard key={project.id} project={project} index={i} onOpen={setSelectedProject} />
+            <ProjectCard key={project.id} project={project} index={i} onNavigate={onNavigate} />
           ))}
         </div>
       </div>
+    </section>
+  )
+}
 
-      {/* Project Detail Modal */}
-      {selectedProject && (
-        <div className="project-modal" onClick={() => setSelectedProject(null)}>
-          <div className="project-modal__content" onClick={e => e.stopPropagation()}>
-            <button className="project-modal__close" onClick={() => setSelectedProject(null)}>
-              <CloseIcon />
-            </button>
+/* ========================================
+   PROJECT DETAIL PAGE
+   ======================================== */
+function ProjectDetailPage({ project, onBack }) {
+  const [activeSlide, setActiveSlide] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    const timer = setTimeout(() => setIsLoading(false), 600)
+    return () => clearTimeout(timer)
+  }, [project])
+
+  if (!project) return <div className="container" style={{ paddingTop: '150px', height: '100vh', textAlign: 'center' }}>Project not found.</div>
+
+  if (isLoading) {
+    return (
+      <div className="project-detail-page">
+        <div className="container" style={{ maxWidth: '1200px' }}>
+          <div className="skeleton-box" style={{ width: '160px', height: '44px', marginBottom: '40px', borderRadius: '100px' }}></div>
+          <div className="project-detail__header">
+            <div className="skeleton-box" style={{ width: '200px', height: '20px', marginBottom: '16px' }}></div>
+            <div className="skeleton-box" style={{ width: '60%', height: '48px' }}></div>
+          </div>
+          <div className="project-detail__body">
+            <div className="project-detail__main">
+              <div className="skeleton-box" style={{ width: '100%', aspectRatio: '16/9', borderRadius: '24px', marginBottom: '48px' }}></div>
+              <div className="skeleton-box" style={{ width: '30%', height: '32px', marginBottom: '16px' }}></div>
+              <div className="skeleton-box" style={{ width: '100%', height: '20px', marginBottom: '12px' }}></div>
+              <div className="skeleton-box" style={{ width: '90%', height: '20px', marginBottom: '12px' }}></div>
+              <div className="skeleton-box" style={{ width: '95%', height: '20px', marginBottom: '12px' }}></div>
+            </div>
+            <div className="project-detail__sidebar">
+              <div className="skeleton-box" style={{ width: '100%', height: '180px', borderRadius: '16px' }}></div>
+              <div className="skeleton-box" style={{ width: '100%', height: '180px', borderRadius: '16px' }}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const slides = []
+  const images = Array.isArray(project.images) ? project.images : (project.image ? [project.image] : [])
+  const videos = Array.isArray(project.videos) ? project.videos : (project.videoUrl ? [project.videoUrl] : [])
+  images.forEach(url => url && slides.push({ type: 'image', url }))
+  videos.forEach(url => url && slides.push({ type: 'video', url }))
+
+  const handlePrev = () => setActiveSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+  const handleNext = () => setActiveSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+
+  return (
+    <div className="project-detail-page">
+      <div className="container" style={{ maxWidth: '1200px' }}>
+        <button className="btn btn--outline project-detail__back" onClick={onBack} style={{ marginBottom: '40px' }}>
+          ← Back to Portfolio
+        </button>
+
+        <div className="project-detail__header">
+          <div className="project-detail__meta">
+            <span className="project-detail__category">{project.category}</span>
+            <span className="project-detail__year">{project.year}</span>
+          </div>
+          <h1 className="project-detail__title">{project.title}</h1>
+        </div>
+
+        <div className="project-detail__body">
+          <div className="project-detail__main">
             {slides.length > 0 && (
-              <div className="project-modal__media-container">
-                <div className="project-modal__media-slide">
+              <div className="project-detail__media-container">
+                <div className="project-detail__media-slide">
                   {slides[activeSlide].type === 'image' ? (
-                    <img src={slides[activeSlide].url} alt={selectedProject.title} className="project-modal__image" loading="lazy" />
+                    <img
+                      src={slides[activeSlide].url}
+                      alt={project.title}
+                      className="project-detail__image"
+                      loading="lazy"
+                      onClick={() => setIsLightboxOpen(true)}
+                      style={{ cursor: 'zoom-in' }}
+                    />
                   ) : (
-                    <video src={slides[activeSlide].url} controls autoPlay muted playsInline className="project-modal__video" />
+                    <video
+                      src={slides[activeSlide].url}
+                      controls
+                      autoPlay
+                      muted
+                      playsInline
+                      className="project-detail__video"
+                      onClick={(e) => { e.preventDefault(); setIsLightboxOpen(true); }}
+                      style={{ cursor: 'zoom-in' }}
+                    />
                   )}
                 </div>
                 {slides.length > 1 && (
-                  <div className="project-modal__dots">
-                    {slides.map((_, idx) => (
-                      <span
-                        key={idx}
-                        onClick={() => setActiveSlide(idx)}
-                        className={`project-modal__dot ${activeSlide === idx ? 'is-active' : ''}`}
-                      />
-                    ))}
-                  </div>
+                  <>
+                    <button className="project-detail__arrow project-detail__arrow--left" onClick={handlePrev}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <button className="project-detail__arrow project-detail__arrow--right" onClick={handleNext}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                    <div className="project-detail__dots">
+                      {slides.map((_, idx) => (
+                        <span
+                          key={idx}
+                          onClick={() => setActiveSlide(idx)}
+                          className={`project-detail__dot ${activeSlide === idx ? 'is-active' : ''}`}
+                        />
+                      ))}
+                    </div>
+                  </>
                 )}
               </div>
             )}
-            <div className="project-modal__body">
-              <div className="project-modal__meta-row">
-                <span className="project-modal__category">{selectedProject.category} • {selectedProject.year}</span>
-                <div className="project-modal__platforms">
-                  {selectedProject.platforms.includes('android') && <PlayStoreIcon />}
-                  {selectedProject.platforms.includes('ios') && <AppStoreIcon />}
-                  {selectedProject.platforms.includes('web') && <WebIcon />}
-                  {selectedProject.platforms.includes('figma') && <FigmaIcon />}
-                </div>
-              </div>
-              <h2 className="project-modal__title">{selectedProject.title}</h2>
-              <div className="project-modal__tech">
-                {selectedProject.tech.map(t => (
+
+            <div className="project-detail__content">
+              <h3>About this project</h3>
+              <p className="project-detail__desc">{project.fullDescription || project.description}</p>
+            </div>
+          </div>
+
+          <div className="project-detail__sidebar">
+            <div className="project-detail__sidebar-group">
+              <h4>Tech Stack</h4>
+              <div className="project-card__tech">
+                {project.tech.map(t => (
                   <span key={t} className="project-card__tech-tag">{t}</span>
                 ))}
               </div>
-              <p className="project-modal__desc">{selectedProject.fullDescription || selectedProject.description}</p>
+            </div>
 
-              <div className="project-modal__actions">
-                {selectedProject.projectLink && (
-                  <a href={selectedProject.projectLink} target="_blank" rel="noreferrer" className="btn btn--primary">
+            <div className="project-detail__sidebar-group">
+              <h4>Platforms</h4>
+              <div className="project-card__platforms" style={{ gap: '16px', fontSize: '24px' }}>
+                {project.platforms.includes('android') && <PlayStoreIcon />}
+                {project.platforms.includes('ios') && <AppStoreIcon />}
+                {project.platforms.includes('web') && <WebIcon />}
+                {project.platforms.includes('figma') && <FigmaIcon />}
+              </div>
+            </div>
+
+            {(project.projectLink || project.repoLink || project.moreInfoLink) && (
+              <div className="project-detail__sidebar-group project-detail__actions">
+                {project.projectLink && (
+                  <a href={project.projectLink} target="_blank" rel="noreferrer" className="btn btn--primary btn--full">
                     <ExternalLinkIcon /> Live Project
                   </a>
                 )}
-                {selectedProject.repoLink && (
-                  <a href={selectedProject.repoLink} target="_blank" rel="noreferrer" className="btn btn--outline">
+                {project.repoLink && (
+                  <a href={project.repoLink} target="_blank" rel="noreferrer" className="btn btn--outline btn--full">
                     <GithubIcon /> Source Code
                   </a>
                 )}
-                {selectedProject.moreInfoLink && (
-                  <a href={selectedProject.moreInfoLink} target="_blank" rel="noreferrer" className="btn btn--outline">
+                {project.moreInfoLink && (
+                  <a href={project.moreInfoLink} target="_blank" rel="noreferrer" className="btn btn--outline btn--full">
                     <InfoIcon /> More Info
                   </a>
                 )}
               </div>
-            </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {isLightboxOpen && (
+        <div className="lightbox" onClick={() => setIsLightboxOpen(false)}>
+          <div className="lightbox__content" onClick={e => e.stopPropagation()}>
+            <button className="lightbox__close" onClick={() => setIsLightboxOpen(false)}>
+              <CloseIcon />
+            </button>
+            {slides[activeSlide].type === 'image' ? (
+              <img src={slides[activeSlide].url} alt={project.title} className="lightbox__image" />
+            ) : (
+              <video src={slides[activeSlide].url} controls autoPlay className="lightbox__image" style={{ maxWidth: '100%', maxHeight: '100%' }} />
+            )}
+            {slides.length > 1 && (
+              <>
+                <button className="project-detail__arrow project-detail__arrow--left" onClick={(e) => { e.stopPropagation(); handlePrev(); }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <button className="project-detail__arrow project-detail__arrow--right" onClick={(e) => { e.stopPropagation(); handleNext(); }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
-    </section>
+    </div>
   )
 }
 
 /* ========================================
    ABOUT SECTION
    ======================================== */
-function AboutSection() {
+function AboutSection({ profilePic }) {
   return (
     <section className="section about" id="about">
       <FadeInSection className="container">
@@ -973,6 +1093,9 @@ function AboutSection() {
               Building across<br />
               <em>every dimension</em>
             </h2>
+            {profilePic && (
+              <img src={profilePic} alt="Farhan" className="about__profile-img" onError={(e) => e.target.style.display = 'none'} />
+            )}
           </div>
           <div className="about__right">
             <p className="about__text">
@@ -993,7 +1116,7 @@ function AboutSection() {
                     className="about__skill-tag"
                     style={{ '--skill-color': skill.color }}
                   >
-                    {skill.icon}
+                    {skill.iconUrl ? <img src={skill.iconUrl} alt={skill.name} width="20" height="20" /> : skill.icon}
                     <span>{skill.name}</span>
                   </span>
                 ))}
@@ -1050,7 +1173,7 @@ function ContactSection() {
     setStatus('sending');
     const form = e.target;
     const data = new FormData(form);
-    
+
     try {
       const response = await fetch('https://formspree.io/f/xwvjrgly', {
         method: 'POST',
@@ -1059,7 +1182,7 @@ function ContactSection() {
           'Accept': 'application/json'
         }
       });
-      
+
       if (response.ok) {
         setStatus('success');
         form.reset();
@@ -1093,6 +1216,10 @@ function ContactSection() {
                 <PhoneIcon />
                 <span>+62 882 6963 9683</span>
               </a>
+              <div className="contact__link">
+                <MapPinIcon />
+                <span>Jambi, Indonesia</span>
+              </div>
             </div>
             <div className="contact__socials">
               <a href="https://github.com/FarhanAbelRantisi" className="contact__social" aria-label="GitHub" id="contact-github">
@@ -1100,6 +1227,9 @@ function ContactSection() {
               </a>
               <a href="https://www.linkedin.com/in/farhanabelrantisi/" className="contact__social" aria-label="LinkedIn" id="contact-linkedin">
                 <LinkedInIcon />
+              </a>
+              <a href="https://www.instagram.com/frhnabel_/" className="contact__social" aria-label="Instagram" id="contact-instagram">
+                <InstagramIcon />
               </a>
             </div>
           </div>
@@ -1140,22 +1270,33 @@ function ContactSection() {
 /* ========================================
    FOOTER
    ======================================== */
-function Footer() {
+function Footer({ onNavClick }) {
   return (
-    <footer className="footer" id="footer">
+    <footer className="footer" id="footer" style={{ paddingTop: '60px', paddingBottom: '60px' }}>
       <div className="container">
-        <div className="footer__inner">
-          <div className="footer__left">
-            <a href="#" className="navbar__logo">
+        <div className="footer__inner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '40px' }}>
+          <div className="footer__left" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <a href="#" className="navbar__logo" style={{ marginBottom: '0' }}>
               <span className="navbar__logo-icon">F</span>
               <span className="navbar__logo-text">farhan.</span>
             </a>
-            <p className="footer__copy">&copy; {new Date().getFullYear()} Farhan Abel Rantisi. All rights reserved.</p>
+            <p className="footer__subtitle" style={{ color: 'var(--color-text-secondary)', maxWidth: '300px', margin: 0 }}>
+              Building digital experiences across every dimension.
+            </p>
+            <p className="footer__copy" style={{ marginTop: 'auto', paddingTop: '16px' }}>&copy; {new Date().getFullYear()} Farhan Abel Rantisi. All rights reserved.</p>
           </div>
-          <div className="footer__right">
-            {NAV_LINKS.map(link => (
-              <a key={link.href} href={link.href} className="footer__link">{link.label}</a>
-            ))}
+          <div className="footer__right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '24px' }}>
+            <div className="footer__links" style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+              {NAV_LINKS.map(link => (
+                <a key={link.href} href={link.href} className="footer__link" onClick={(e) => onNavClick && onNavClick(e, link.href)}>{link.label}</a>
+              ))}
+            </div>
+            <div className="footer__socials" style={{ display: 'flex', gap: '16px' }}>
+              <a href="https://github.com/FarhanAbelRantisi" className="contact__social" aria-label="GitHub"><GithubIcon /></a>
+              <a href="https://www.linkedin.com/in/farhanabelrantisi/" className="contact__social" aria-label="LinkedIn"><LinkedInIcon /></a>
+              <a href="mailto:farhanrantisi55@gmail.com" className="contact__social" aria-label="Email"><EmailIcon /></a>
+              <a href="https://www.instagram.com/frhnabel_/" className="contact__social" aria-label="Instagram"><InstagramIcon /></a>
+            </div>
           </div>
         </div>
       </div>
@@ -1169,6 +1310,7 @@ function Footer() {
 function App() {
   const [projectsList, setProjectsList] = useState(PROJECTS)
   const [experiencesList, setExperiencesList] = useState(EXPERIENCES)
+  const [profilePic, setProfilePic] = useState(null)
   const [currentPath, setCurrentPath] = useState(window.location.pathname)
 
   useEffect(() => {
@@ -1182,6 +1324,9 @@ function App() {
     const fetchDbData = async () => {
       if (!supabase) return
       try {
+        const { data: { publicUrl } } = supabase.storage.from('project-images').getPublicUrl('profile/avatar.png')
+        setProfilePic(`${publicUrl}?t=${new Date().getTime()}`)
+
         const { data: dbProj, error: projErr } = await supabase
           .from('projects')
           .select('*')
@@ -1217,6 +1362,34 @@ function App() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
+  const [scrollPos, setScrollPos] = useState(0)
+
+  const navigate = (path) => {
+    if (path.startsWith('/project/')) {
+      setScrollPos(window.scrollY)
+    }
+    window.history.pushState({}, '', path)
+    setCurrentPath(path)
+    window.scrollTo(0, 0)
+  }
+
+  const handleNavClick = (e, href) => {
+    e.preventDefault()
+    if (currentPath.startsWith('/project/')) {
+      navigate('/')
+      setTimeout(() => {
+        const id = href.replace('/#', '')
+        const el = document.getElementById(id)
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
+      }, 50)
+    } else {
+      const id = href.replace('/#', '')
+      const el = document.getElementById(id)
+      if (el) el.scrollIntoView({ behavior: 'smooth' })
+      window.history.pushState({}, '', href)
+    }
+  }
+
   if (currentPath === '/farhan-admin-secure') {
     return (
       <AdminPage
@@ -1226,18 +1399,45 @@ function App() {
     )
   }
 
+  const handleBack = (projectId) => {
+    window.history.pushState({}, '', '/')
+    setCurrentPath('/')
+    setTimeout(() => {
+      if (scrollPos > 0) {
+        window.scrollTo({ top: scrollPos, behavior: 'instant' })
+      } else {
+        const el = document.getElementById(`project-${projectId}`)
+        if (el) el.scrollIntoView({ behavior: 'instant', block: 'center' })
+      }
+    }, 10)
+  }
+
+  if (currentPath.startsWith('/project/')) {
+    const projectId = currentPath.split('/')[2];
+    const project = projectsList.find(p => p.id.toString() === projectId);
+    return (
+      <>
+        <Navbar onNavClick={handleNavClick} />
+        <main>
+          <ProjectDetailPage project={project} onBack={() => handleBack(project?.id)} />
+        </main>
+        <Footer onNavClick={handleNavClick} />
+      </>
+    )
+  }
+
   return (
-    <>
-      <Navbar />
+    <div className="app">
+      <Navbar onNavClick={handleNavClick} />
       <main>
         <HeroSection />
-        <ProjectsSection projects={projectsList} />
-        <AboutSection />
+        <ProjectsSection projects={projectsList} onNavigate={navigate} />
+        <AboutSection profilePic={profilePic} />
         <ExperienceSection experiences={experiencesList} />
         <ContactSection />
       </main>
-      <Footer />
-    </>
+      <Footer onNavClick={handleNavClick} />
+    </div>
   )
 }
 

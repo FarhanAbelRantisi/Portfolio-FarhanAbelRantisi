@@ -463,6 +463,50 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
     }
   }
 
+  const [uploadingProfile, setUploadingProfile] = useState(false)
+  const [profilePicUrl, setProfilePicUrl] = useState(() => {
+    if (!supabase) return null
+    return supabase.storage.from('project-images').getPublicUrl('profile/avatar.png').data.publicUrl + '?t=' + Date.now()
+  })
+
+  const handleProfilePicUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file || !supabase) return
+    setUploadingProfile(true)
+    try {
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1000,
+        useWebWorker: true,
+      }
+      const compressedFile = await imageCompression(file, options)
+      
+      const { error } = await supabase.storage
+        .from('project-images')
+        .upload('profile/avatar.png', compressedFile, {
+          cacheControl: '0',
+          upsert: true
+        })
+
+      if (error) {
+        if (error.message.includes('bucket')) {
+           throw new Error("Bucket 'project-images' not found.")
+        }
+        throw error
+      }
+      
+      const newUrl = supabase.storage.from('project-images').getPublicUrl('profile/avatar.png').data.publicUrl + '?t=' + Date.now()
+      setProfilePicUrl(newUrl)
+      
+      showStatus('Profile picture updated successfully!')
+    } catch (err) {
+      showStatus(err.message, 'error')
+    } finally {
+      setUploadingProfile(false)
+      e.target.value = ''
+    }
+  }
+
   // --- RENDERING LOGIN PANEL ---
   if (!session) {
     return (
@@ -569,6 +613,12 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
           >
             💼 Experiences ({experiences.length})
           </button>
+          <button
+            className={`admin-tab ${activeTab === 'profile' ? 'is-active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+          >
+            👤 Profile Info
+          </button>
         </div>
 
         {dataLoading ? (
@@ -578,7 +628,7 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
           </div>
         ) : (
           <div className="admin-table-container">
-            {activeTab === 'projects' ? (
+            {activeTab === 'projects' && (
               <div className="admin-section-data">
                 <div className="admin-section-header">
                   <h2>Projects List</h2>
@@ -652,7 +702,8 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
                   </table>
                 )}
               </div>
-            ) : (
+            )}
+            {activeTab === 'experiences' && (
               <div className="admin-section-data">
                 <div className="admin-section-header">
                   <h2>Experiences List</h2>
@@ -701,6 +752,31 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
                     </tbody>
                   </table>
                 )}
+              </div>
+            )}
+            {activeTab === 'profile' && (
+              <div className="admin-section-data">
+                <div className="admin-section-header">
+                  <h2>Profile Settings</h2>
+                </div>
+                <div className="admin-form-group" style={{maxWidth: '400px', marginTop: '24px'}}>
+                  <label>Profile Picture (About Section)</label>
+                  <p className="admin-help-text" style={{marginBottom: '12px'}}>Upload a photo to be displayed in the About Me section.</p>
+                  
+                  {profilePicUrl && (
+                    <div style={{marginBottom: '16px'}}>
+                      <img 
+                        src={profilePicUrl} 
+                        alt="Profile" 
+                        style={{width: '120px', height: '120px', objectFit: 'cover', borderRadius: '50%', border: '2px solid var(--color-border)', boxShadow: 'var(--shadow-sm)'}} 
+                        onError={(e) => e.target.style.display = 'none'} 
+                      />
+                    </div>
+                  )}
+
+                  <input type="file" accept="image/*" onChange={handleProfilePicUpload} disabled={uploadingProfile} className="admin-form-input" />
+                  {uploadingProfile && <span className="admin-uploading-text" style={{display: 'block', marginTop: '8px', color: 'var(--color-primary)'}}>Uploading and compressing...</span>}
+                </div>
               </div>
             )}
           </div>
