@@ -792,7 +792,7 @@ function ProjectCard({ project, index, onOpen }) {
 
       <div className="project-card__visual" style={{ background: `${project.color}12`, cursor: 'pointer' }} onClick={() => onOpen(project)}>
         {(project.images?.[0] || project.image) ? (
-          <img src={project.images?.[0] || project.image} alt={project.title} className="project-card__image" />
+          <img src={project.images?.[0] || project.image} alt={project.title} className="project-card__image" loading="lazy" />
         ) : (
           /* Placeholder jika tidak ada gambar */
           <div className="project-card__phone" style={{ borderColor: `${project.color}30` }}>
@@ -898,7 +898,7 @@ function ProjectsSection({ projects }) {
               <div className="project-modal__media-container">
                 <div className="project-modal__media-slide">
                   {slides[activeSlide].type === 'image' ? (
-                    <img src={slides[activeSlide].url} alt={selectedProject.title} className="project-modal__image" />
+                    <img src={slides[activeSlide].url} alt={selectedProject.title} className="project-modal__image" loading="lazy" />
                   ) : (
                     <video src={slides[activeSlide].url} controls autoPlay muted playsInline className="project-modal__video" />
                   )}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
+import imageCompression from 'browser-image-compression'
 import './Admin.css'
 
 export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences = [] }) {
@@ -55,13 +56,20 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
 
     setUploadingImage(true)
     try {
-      const fileExt = file.name.split('.').pop()
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      }
+      const compressedFile = await imageCompression(file, options)
+
+      const fileExt = compressedFile.name.split('.').pop()
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`
       const filePath = `projects/${fileName}`
 
       const { data, error } = await supabase.storage
         .from('project-images')
-        .upload(filePath, file, {
+        .upload(filePath, compressedFile, {
           cacheControl: '3600',
           upsert: false
         })
