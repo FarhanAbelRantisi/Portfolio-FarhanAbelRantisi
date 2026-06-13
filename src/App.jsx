@@ -895,7 +895,7 @@ function ProjectDetailPage({ project, onBack }) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
 
   useEffect(() => {
-    window.scrollTo(0, 0)
+    window.scrollTo({ top: 0, behavior: 'instant' })
     const timer = setTimeout(() => setIsLoading(false), 600)
     return () => clearTimeout(timer)
   }, [project])
@@ -1011,37 +1011,37 @@ function ProjectDetailPage({ project, onBack }) {
           <div className="project-detail__sidebar">
             <div className="project-detail__sidebar-group">
               <h4>Tech Stack</h4>
-              <div className="project-card__tech">
+              <div className="project-detail__tech">
                 {project.tech.map(t => (
-                  <span key={t} className="project-card__tech-tag">{t}</span>
+                  <span key={t} className="project-detail__tech-tag">{t}</span>
                 ))}
               </div>
             </div>
 
             <div className="project-detail__sidebar-group">
               <h4>Platforms</h4>
-              <div className="project-card__platforms" style={{ gap: '16px', fontSize: '24px' }}>
-                {project.platforms.includes('android') && <PlayStoreIcon />}
-                {project.platforms.includes('ios') && <AppStoreIcon />}
-                {project.platforms.includes('web') && <WebIcon />}
-                {project.platforms.includes('figma') && <FigmaIcon />}
+              <div className="project-detail__platforms">
+                {project.platforms.includes('android') && <div className="platform-icon"><PlayStoreIcon /></div>}
+                {project.platforms.includes('ios') && <div className="platform-icon"><AppStoreIcon /></div>}
+                {project.platforms.includes('web') && <div className="platform-icon"><WebIcon /></div>}
+                {project.platforms.includes('figma') && <div className="platform-icon"><FigmaIcon /></div>}
               </div>
             </div>
 
             {(project.projectLink || project.repoLink || project.moreInfoLink) && (
               <div className="project-detail__sidebar-group project-detail__actions">
                 {project.projectLink && (
-                  <a href={project.projectLink} target="_blank" rel="noreferrer" className="btn btn--primary btn--full">
+                  <a href={project.projectLink} target="_blank" rel="noreferrer" className="btn btn--primary btn--full project-detail__btn">
                     <ExternalLinkIcon /> Live Project
                   </a>
                 )}
                 {project.repoLink && (
-                  <a href={project.repoLink} target="_blank" rel="noreferrer" className="btn btn--outline btn--full">
+                  <a href={project.repoLink} target="_blank" rel="noreferrer" className="btn btn--outline btn--full project-detail__btn">
                     <GithubIcon /> Source Code
                   </a>
                 )}
                 {project.moreInfoLink && (
-                  <a href={project.moreInfoLink} target="_blank" rel="noreferrer" className="btn btn--outline btn--full">
+                  <a href={project.moreInfoLink} target="_blank" rel="noreferrer" className="btn btn--outline btn--full project-detail__btn">
                     <InfoIcon /> More Info
                   </a>
                 )}
@@ -1272,31 +1272,35 @@ function ContactSection() {
    ======================================== */
 function Footer({ onNavClick }) {
   return (
-    <footer className="footer" id="footer" style={{ paddingTop: '60px', paddingBottom: '60px' }}>
+    <footer className="footer" id="footer">
       <div className="container">
-        <div className="footer__inner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '40px' }}>
-          <div className="footer__left" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <a href="#" className="navbar__logo" style={{ marginBottom: '0' }}>
-              <span className="navbar__logo-icon">F</span>
-              <span className="navbar__logo-text">farhan.</span>
-            </a>
-            <p className="footer__subtitle" style={{ color: 'var(--color-text-secondary)', maxWidth: '300px', margin: 0 }}>
-              Building digital experiences across every dimension.
-            </p>
-            <p className="footer__copy" style={{ marginTop: 'auto', paddingTop: '16px' }}>&copy; {new Date().getFullYear()} Farhan Abel Rantisi. All rights reserved.</p>
+        <div className="footer__inner">
+          <div className="footer__main">
+            <div className="footer__brand">
+              <a href="#" className="navbar__logo">
+                <span className="navbar__logo-icon">F</span>
+                <span className="navbar__logo-text">farhan.</span>
+              </a>
+              <p className="footer__subtitle">
+                Building digital experiences across every dimension.
+              </p>
+            </div>
+            <div className="footer__nav">
+              <div className="footer__links">
+                {NAV_LINKS.map(link => (
+                  <a key={link.href} href={link.href} className="footer__link" onClick={(e) => onNavClick && onNavClick(e, link.href)}>{link.label}</a>
+                ))}
+              </div>
+              <div className="footer__socials">
+                <a href="https://github.com/FarhanAbelRantisi" className="contact__social" aria-label="GitHub"><GithubIcon /></a>
+                <a href="https://www.linkedin.com/in/farhanabelrantisi/" className="contact__social" aria-label="LinkedIn"><LinkedInIcon /></a>
+                <a href="mailto:farhanrantisi55@gmail.com" className="contact__social" aria-label="Email"><EmailIcon /></a>
+                <a href="https://www.instagram.com/frhnabel_/" className="contact__social" aria-label="Instagram"><InstagramIcon /></a>
+              </div>
+            </div>
           </div>
-          <div className="footer__right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '24px' }}>
-            <div className="footer__links" style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-              {NAV_LINKS.map(link => (
-                <a key={link.href} href={link.href} className="footer__link" onClick={(e) => onNavClick && onNavClick(e, link.href)}>{link.label}</a>
-              ))}
-            </div>
-            <div className="footer__socials" style={{ display: 'flex', gap: '16px' }}>
-              <a href="https://github.com/FarhanAbelRantisi" className="contact__social" aria-label="GitHub"><GithubIcon /></a>
-              <a href="https://www.linkedin.com/in/farhanabelrantisi/" className="contact__social" aria-label="LinkedIn"><LinkedInIcon /></a>
-              <a href="mailto:farhanrantisi55@gmail.com" className="contact__social" aria-label="Email"><EmailIcon /></a>
-              <a href="https://www.instagram.com/frhnabel_/" className="contact__social" aria-label="Instagram"><InstagramIcon /></a>
-            </div>
+          <div className="footer__bottom">
+            <p className="footer__copy">&copy; {new Date().getFullYear()} Farhan Abel Rantisi. All rights reserved.</p>
           </div>
         </div>
       </div>
@@ -1370,7 +1374,7 @@ function App() {
     }
     window.history.pushState({}, '', path)
     setCurrentPath(path)
-    window.scrollTo(0, 0)
+    window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
   const handleNavClick = (e, href) => {
