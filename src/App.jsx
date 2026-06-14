@@ -381,6 +381,12 @@ const SKILLS = [
   { name: 'Kotlin', color: '#7F52FF', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kotlin/kotlin-original.svg', icon: <KotlinIcon /> },
   { name: 'Dart', color: '#0175C2', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/dart/dart-original.svg', icon: <DartIcon /> },
   { name: 'TypeScript', color: '#3178C6', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg', icon: <TypeScriptIcon /> },
+  { name: 'React JS', color: '#61DAFB', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg', icon: <ReactIcon /> },
+  { name: 'Tailwind CSS', color: '#06B6D4', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg' },
+  { name: 'Node JS', color: '#339933', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg' },
+  { name: 'Express JS', color: '#FFFFFF', iconUrl: 'https://cdn.simpleicons.org/express/white' },
+  { name: 'FastAPI', color: '#009688', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg' },
+  { name: 'PostgreSQL', color: '#4169E1', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg' },
   { name: 'Firebase', color: '#FFCA28', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/firebase/firebase-original.svg', icon: <FirebaseIcon /> },
   { name: 'REST API', color: '#009688', icon: <ApiIcon /> },
   { name: 'Git', color: '#F05032', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg', icon: <GitIconSmall /> },
@@ -646,12 +652,12 @@ function HeroSection() {
                   </div>
                   <div className="hero__stat-divider"></div>
                   <div className="hero__stat">
-                    <span className="hero__stat-number">10+</span>
+                    <span className="hero__stat-number">20+</span>
                     <span className="hero__stat-label">Projects Built</span>
                   </div>
                   <div className="hero__stat-divider"></div>
                   <div className="hero__stat">
-                    <span className="hero__stat-number">50+</span>
+                    <span className="hero__stat-number">100+</span>
                     <span className="hero__stat-label">Screens Designed</span>
                   </div>
                 </div>
@@ -679,12 +685,12 @@ function HeroSection() {
                 </div>
                 <div className="hero__stat-divider"></div>
                 <div className="hero__stat">
-                  <span className="hero__stat-number">10+</span>
+                  <span className="hero__stat-number">20+</span>
                   <span className="hero__stat-label">Projects Built</span>
                 </div>
                 <div className="hero__stat-divider"></div>
                 <div className="hero__stat">
-                  <span className="hero__stat-number">50+</span>
+                  <span className="hero__stat-number">100+</span>
                   <span className="hero__stat-label">Screens Designed</span>
                 </div>
               </div>
@@ -701,12 +707,12 @@ function HeroSection() {
         </div>
         <div className="hero__stat-divider"></div>
         <div className="hero__stat">
-          <span className="hero__stat-number">10+</span>
+          <span className="hero__stat-number">20+</span>
           <span className="hero__stat-label">Projects Built</span>
         </div>
         <div className="hero__stat-divider"></div>
         <div className="hero__stat">
-          <span className="hero__stat-number">50+</span>
+          <span className="hero__stat-number">100+</span>
           <span className="hero__stat-label">Screens Designed</span>
         </div>
       </div>
