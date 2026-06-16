@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, Suspense, lazy } from 'react'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 import './App.css'
 import { supabase } from './supabaseClient'
 import AdminPage from './AdminPage'
@@ -23,36 +25,36 @@ function SplineScene({ scene, className, onLoad }) {
   )
 }
 
-function FadeInSection({ children, className = "" }) {
-  const domRef = useRef(null)
-  const [isVisible, setVisible] = useState(false)
+// function FadeInSection({ children, className = "" }) {
+//   const domRef = useRef(null)
+//   const [isVisible, setVisible] = useState(false)
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setVisible(true)
-          observer.unobserve(entry.target)
-        }
-      })
-    }, { threshold: 0.02 })
+//   useEffect(() => {
+//     const observer = new IntersectionObserver(entries => {
+//       entries.forEach(entry => {
+//         if (entry.isIntersecting) {
+//           setVisible(true)
+//           observer.unobserve(entry.target)
+//         }
+//       })
+//     }, { threshold: 0.02 })
 
-    const current = domRef.current
-    if (current) observer.observe(current)
-    return () => {
-      if (current) observer.unobserve(current)
-    }
-  }, [])
+//     const current = domRef.current
+//     if (current) observer.observe(current)
+//     return () => {
+//       if (current) observer.unobserve(current)
+//     }
+//   }, [])
 
-  return (
-    <div
-      ref={domRef}
-      className={`${className} fade-in-section ${isVisible ? 'is-visible' : ''}`}
-    >
-      {children}
-    </div>
-  )
-}
+//   return (
+//     <div
+//       ref={domRef}
+//       className={`${className} fade-in-section ${isVisible ? 'is-visible' : ''}`}
+//     >
+//       {children}
+//     </div>
+//   )
+// }
 
 // SVGs for Tech Stack
 const FlutterIcon = () => (
@@ -742,19 +744,9 @@ function HeroSection() {
    ======================================== */
 function ProjectCard({ project, index, onNavigate }) {
   const cardRef = useRef(null)
-  const [isVisible, setIsVisible] = useState(false)
 
   const spotlightRef = useRef(null)
   const animFrameRef = useRef(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setIsVisible(true) },
-      { threshold: 0.15 }
-    )
-    if (cardRef.current) observer.observe(cardRef.current)
-    return () => observer.disconnect()
-  }, [])
 
   // 3D Tilt + Spotlight tracking
   const handleMouseMove = (e) => {
@@ -797,8 +789,10 @@ function ProjectCard({ project, index, onNavigate }) {
   return (
     <div
       ref={cardRef}
-      className={`project-card ${isVisible ? 'project-card--visible' : ''}`}
-      style={{ animationDelay: `${index * 120}ms` }}
+      className="project-card"
+      data-aos="fade-up"
+      data-aos-delay={index * 100}
+      data-aos-anchor-placement="top-bottom"
       id={`project-${project.id}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -874,7 +868,7 @@ function ProjectCard({ project, index, onNavigate }) {
 
 function ProjectCardSkeleton({ index }) {
   return (
-    <div className="project-card project-card--visible" style={{ animationDelay: `${index * 120}ms`, cursor: 'default' }}>
+    <div className="project-card" data-aos="fade-up" data-aos-delay={index * 100} data-aos-anchor-placement="top-bottom" style={{ cursor: 'default' }}>
       <div className="project-card__visual skeleton-box" style={{ borderRadius: '16px', border: 'none' }}></div>
       <div className="project-card__info">
         <div className="project-card__meta">
@@ -909,13 +903,13 @@ function ProjectsSection({ projects, isLoading, onNavigate }) {
           </p>
         </div>
         <div className="projects__grid">
-          {showSkeletons 
+          {showSkeletons
             ? Array.from({ length: 6 }).map((_, i) => (
-                <ProjectCardSkeleton key={i} index={i} />
-              ))
+              <ProjectCardSkeleton key={i} index={i} />
+            ))
             : projects.map((project, i) => (
-                <ProjectCard key={project.id} project={project} index={i} onNavigate={onNavigate} />
-              ))
+              <ProjectCard key={project.id} project={project} index={i} onNavigate={onNavigate} />
+            ))
           }
         </div>
       </div>
@@ -1122,7 +1116,7 @@ function ProjectDetailPage({ project, onBack }) {
 function AboutSection({ profilePic }) {
   return (
     <section className="section about" id="about">
-      <FadeInSection className="container">
+      <div className="container" data-aos="fade-up" data-aos-anchor-placement="top-bottom">
         <div className="about__layout">
           <div className="about__left">
             <span className="section__label">About Me</span>
@@ -1161,7 +1155,7 @@ function AboutSection({ profilePic }) {
             </div>
           </div>
         </div>
-      </FadeInSection>
+      </div>
     </section>
   )
 }
@@ -1172,7 +1166,7 @@ function AboutSection({ profilePic }) {
 function ExperienceSection({ experiences }) {
   return (
     <section className="section experience" id="experience">
-      <FadeInSection className="container">
+      <div className="container" data-aos="fade-up" data-aos-anchor-placement="top-bottom">
         <div className="section__header">
           <span className="section__label">Experience</span>
           <h2 className="section__title">Where I've worked</h2>
@@ -1194,7 +1188,7 @@ function ExperienceSection({ experiences }) {
             </div>
           ))}
         </div>
-      </FadeInSection>
+      </div>
     </section>
   )
 }
@@ -1234,7 +1228,7 @@ function ContactSection() {
 
   return (
     <section className="section contact" id="contact">
-      <FadeInSection className="container">
+      <div className="container" data-aos="fade-up" data-aos-anchor-placement="top-bottom">
         <div className="contact__layout">
           <div className="contact__left">
             <span className="section__label">Get in Touch</span>
@@ -1292,7 +1286,7 @@ function ContactSection() {
             </form>
           </div>
         </div>
-      </FadeInSection>
+      </div>
       {/* Toast Notification */}
       <div className={`toast ${status === 'success' ? 'toast--visible' : ''}`}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1356,6 +1350,12 @@ function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname)
 
   useEffect(() => {
+    AOS.init({
+      duration: 800,
+      once: true,
+      offset: 50,
+    })
+
     // Client-side router popstate tracking
     const handlePopState = () => {
       setCurrentPath(window.location.pathname)
