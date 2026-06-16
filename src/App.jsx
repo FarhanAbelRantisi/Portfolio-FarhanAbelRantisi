@@ -743,6 +743,7 @@ function HeroSection() {
 function ProjectCard({ project, index, onNavigate }) {
   const cardRef = useRef(null)
   const [isVisible, setIsVisible] = useState(false)
+
   const spotlightRef = useRef(null)
   const animFrameRef = useRef(null)
 
@@ -871,7 +872,32 @@ function ProjectCard({ project, index, onNavigate }) {
   )
 }
 
-function ProjectsSection({ projects, onNavigate }) {
+function ProjectCardSkeleton({ index }) {
+  return (
+    <div className="project-card project-card--visible" style={{ animationDelay: `${index * 120}ms`, cursor: 'default' }}>
+      <div className="project-card__visual skeleton-box" style={{ borderRadius: '16px', border: 'none' }}></div>
+      <div className="project-card__info">
+        <div className="project-card__meta">
+          <div className="skeleton-box" style={{ width: '80px', height: '14px', borderRadius: '4px' }}></div>
+        </div>
+        <div className="skeleton-box" style={{ width: '70%', height: '28px', margin: '8px 0', borderRadius: '4px' }}></div>
+        <div className="skeleton-box" style={{ width: '100%', height: '40px', marginBottom: '16px', borderRadius: '4px' }}></div>
+        <div className="project-card__tech">
+          <div className="skeleton-box" style={{ width: '60px', height: '24px', borderRadius: '100px' }}></div>
+          <div className="skeleton-box" style={{ width: '80px', height: '24px', borderRadius: '100px' }}></div>
+          <div className="skeleton-box" style={{ width: '70px', height: '24px', borderRadius: '100px' }}></div>
+        </div>
+        <div className="project-card__footer" style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+          <div className="skeleton-box" style={{ width: '100px', height: '20px', borderRadius: '4px' }}></div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ProjectsSection({ projects, isLoading, onNavigate }) {
+  const showSkeletons = isLoading && projects.length === 0;
+
   return (
     <section className="section projects" id="projects">
       <div className="container">
@@ -883,9 +909,14 @@ function ProjectsSection({ projects, onNavigate }) {
           </p>
         </div>
         <div className="projects__grid">
-          {projects.map((project, i) => (
-            <ProjectCard key={project.id} project={project} index={i} onNavigate={onNavigate} />
-          ))}
+          {showSkeletons 
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <ProjectCardSkeleton key={i} index={i} />
+              ))
+            : projects.map((project, i) => (
+                <ProjectCard key={project.id} project={project} index={i} onNavigate={onNavigate} />
+              ))
+          }
         </div>
       </div>
     </section>
@@ -1319,6 +1350,7 @@ function Footer({ onNavClick }) {
    ======================================== */
 function App() {
   const [projectsList, setProjectsList] = useState(PROJECTS)
+  const [isProjectsLoading, setIsProjectsLoading] = useState(true)
   const [experiencesList, setExperiencesList] = useState(EXPERIENCES)
   const [profilePic, setProfilePic] = useState(null)
   const [currentPath, setCurrentPath] = useState(window.location.pathname)
@@ -1332,7 +1364,10 @@ function App() {
 
     // Fetch live entries from Supabase if connected
     const fetchDbData = async () => {
-      if (!supabase) return
+      if (!supabase) {
+        setIsProjectsLoading(false)
+        return
+      }
       try {
         const { data: { publicUrl } } = supabase.storage.from('project-images').getPublicUrl('profile/avatar.png')
         setProfilePic(`${publicUrl}?t=${new Date().getTime()}`)
@@ -1365,6 +1400,8 @@ function App() {
         }
       } catch (e) {
         console.error('Failed to load DB content, using local fallback:', e)
+      } finally {
+        setIsProjectsLoading(false)
       }
     }
 
@@ -1441,7 +1478,7 @@ function App() {
       <Navbar onNavClick={handleNavClick} />
       <main>
         <HeroSection />
-        <ProjectsSection projects={projectsList} onNavigate={navigate} />
+        <ProjectsSection projects={projectsList} isLoading={isProjectsLoading} onNavigate={navigate} />
         <AboutSection profilePic={profilePic} />
         <ExperienceSection experiences={experiencesList} />
         <ContactSection />
