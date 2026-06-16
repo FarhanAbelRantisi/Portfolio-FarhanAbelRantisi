@@ -25,36 +25,59 @@ function SplineScene({ scene, className, onLoad }) {
   )
 }
 
-// function FadeInSection({ children, className = "" }) {
-//   const domRef = useRef(null)
-//   const [isVisible, setVisible] = useState(false)
+const getDeviceOS = () => {
+  if (typeof window === 'undefined') return 'other';
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  if (/iPad|iPhone|iPod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+    return 'ios';
+  }
+  if (/Android/.test(userAgent)) {
+    return 'android';
+  }
+  return 'other';
+}
 
-//   useEffect(() => {
-//     const observer = new IntersectionObserver(entries => {
-//       entries.forEach(entry => {
-//         if (entry.isIntersecting) {
-//           setVisible(true)
-//           observer.unobserve(entry.target)
-//         }
-//       })
-//     }, { threshold: 0.02 })
+function FadeInSection({ children, className = "" }) {
+  const isIOS = getDeviceOS() === 'ios'
+  const domRef = useRef(null)
+  const [isVisible, setVisible] = useState(false)
 
-//     const current = domRef.current
-//     if (current) observer.observe(current)
-//     return () => {
-//       if (current) observer.unobserve(current)
-//     }
-//   }, [])
+  useEffect(() => {
+    if (!isIOS) return;
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setVisible(true)
+          observer.unobserve(entry.target)
+        }
+      })
+    }, { threshold: 0.02 })
 
-//   return (
-//     <div
-//       ref={domRef}
-//       className={`${className} fade-in-section ${isVisible ? 'is-visible' : ''}`}
-//     >
-//       {children}
-//     </div>
-//   )
-// }
+    const current = domRef.current
+    if (current) observer.observe(current)
+    return () => {
+      if (current) observer.unobserve(current)
+    }
+  }, [isIOS])
+
+  if (isIOS) {
+    return (
+      <div
+        ref={domRef}
+        className={`${className} fade-in-section ${isVisible ? 'is-visible' : ''}`}
+      >
+        {children}
+      </div>
+    )
+  }
+
+  return (
+    <div className={className} data-aos="fade-up" data-aos-anchor-placement="top-bottom">
+      {children}
+    </div>
+  )
+}
+
 
 // SVGs for Tech Stack
 const FlutterIcon = () => (
@@ -491,6 +514,7 @@ function Navbar({ onNavClick }) {
    HERO SECTION — Full-screen Spline 3D
    ======================================== */
 function HeroSection() {
+  const isAndroid = getDeviceOS() === 'android'
   const [mounted, setMounted] = useState(false)
   const [splineLoaded, setSplineLoaded] = useState(false)
   const animFrameRef = useRef(null)
@@ -624,12 +648,14 @@ function HeroSection() {
     <div className="hero-wrapper">
       <section className="hero" id="hero">
         {/* Full-screen 3D background */}
-        <div className="hero__spline-bg" id="spline-container">
-          <SplineScene
-            scene="https://prod.spline.design/WAeofjQyEIkU-qty/scene.splinecode"
-            onLoad={handleSplineLoad}
-          />
-        </div>
+        {!isAndroid && (
+          <div className="hero__spline-bg" id="spline-container">
+            <SplineScene
+              scene="https://prod.spline.design/WAeofjQyEIkU-qty/scene.splinecode"
+              onLoad={handleSplineLoad}
+            />
+          </div>
+        )}
 
         {/* Text overlay on top of the 3D scene */}
         <div className="hero__overlay">
@@ -639,7 +665,7 @@ function HeroSection() {
               Available for new projects
             </div>
             {/* visibility: hidden menyembunyikan teks. height & margin-bottom membatasi besarnya space */}
-            <h1 className="hero__title" style={{ visibility: 'hidden', height: '300px', marginBottom: '10px', overflow: 'hidden' }}>
+            <h1 className="hero__title" style={!isAndroid ? { visibility: 'hidden', height: '300px', marginBottom: '10px', overflow: 'hidden' } : {}}>
               I'm <em className="hero__name">Farhan</em>,{' '}
               <span className="hero__title-rest">
                 a developer & designer.
@@ -647,7 +673,7 @@ function HeroSection() {
             </h1>
             <div className="hero__content-bottom">
               <div className="hero__left-block">
-                <div className="hero__stats" style={{ visibility: 'hidden' }}>
+                <div className="hero__stats" style={!isAndroid ? { visibility: 'hidden' } : {}}>
                   <div className="hero__stat">
                     <span className="hero__stat-number">2+</span>
                     <span className="hero__stat-label">Years Experience</span>
@@ -743,10 +769,22 @@ function HeroSection() {
    PROJECTS SECTION
    ======================================== */
 function ProjectCard({ project, index, onNavigate }) {
+  const isIOS = getDeviceOS() === 'ios'
   const cardRef = useRef(null)
+  const [isVisible, setIsVisible] = useState(false)
 
   const spotlightRef = useRef(null)
   const animFrameRef = useRef(null)
+
+  useEffect(() => {
+    if (!isIOS) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setIsVisible(true) },
+      { threshold: 0.15 }
+    )
+    if (cardRef.current) observer.observe(cardRef.current)
+    return () => observer.disconnect()
+  }, [isIOS])
 
   // 3D Tilt + Spotlight tracking
   const handleMouseMove = (e) => {
@@ -786,13 +824,20 @@ function ProjectCard({ project, index, onNavigate }) {
     }
   }
 
+  const iosProps = isIOS ? {
+    className: `project-card ${isVisible ? 'project-card--visible' : ''}`,
+    style: { animationDelay: `${index * 120}ms` }
+  } : {
+    className: "project-card",
+    "data-aos": "fade-up",
+    "data-aos-delay": index * 100,
+    "data-aos-anchor-placement": "top-bottom"
+  };
+
   return (
     <div
       ref={cardRef}
-      className="project-card"
-      data-aos="fade-up"
-      data-aos-delay={index * 100}
-      data-aos-anchor-placement="top-bottom"
+      {...iosProps}
       id={`project-${project.id}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -867,8 +912,21 @@ function ProjectCard({ project, index, onNavigate }) {
 }
 
 function ProjectCardSkeleton({ index }) {
+  const isIOS = getDeviceOS() === 'ios'
+  
+  const iosProps = isIOS ? {
+    className: "project-card project-card--visible",
+    style: { animationDelay: `${index * 120}ms`, cursor: 'default' }
+  } : {
+    className: "project-card",
+    "data-aos": "fade-up",
+    "data-aos-delay": index * 100,
+    "data-aos-anchor-placement": "top-bottom",
+    style: { cursor: 'default' }
+  };
+
   return (
-    <div className="project-card" data-aos="fade-up" data-aos-delay={index * 100} data-aos-anchor-placement="top-bottom" style={{ cursor: 'default' }}>
+    <div {...iosProps}>
       <div className="project-card__visual skeleton-box" style={{ borderRadius: '16px', border: 'none' }}></div>
       <div className="project-card__info">
         <div className="project-card__meta">
@@ -1116,7 +1174,7 @@ function ProjectDetailPage({ project, onBack }) {
 function AboutSection({ profilePic }) {
   return (
     <section className="section about" id="about">
-      <div className="container" data-aos="fade-up" data-aos-anchor-placement="top-bottom">
+      <FadeInSection className="container">
         <div className="about__layout">
           <div className="about__left">
             <span className="section__label">About Me</span>
@@ -1155,7 +1213,7 @@ function AboutSection({ profilePic }) {
             </div>
           </div>
         </div>
-      </div>
+      </FadeInSection>
     </section>
   )
 }
@@ -1166,7 +1224,7 @@ function AboutSection({ profilePic }) {
 function ExperienceSection({ experiences }) {
   return (
     <section className="section experience" id="experience">
-      <div className="container" data-aos="fade-up" data-aos-anchor-placement="top-bottom">
+      <FadeInSection className="container">
         <div className="section__header">
           <span className="section__label">Experience</span>
           <h2 className="section__title">Where I've worked</h2>
@@ -1188,7 +1246,7 @@ function ExperienceSection({ experiences }) {
             </div>
           ))}
         </div>
-      </div>
+      </FadeInSection>
     </section>
   )
 }
@@ -1228,7 +1286,7 @@ function ContactSection() {
 
   return (
     <section className="section contact" id="contact">
-      <div className="container" data-aos="fade-up" data-aos-anchor-placement="top-bottom">
+      <FadeInSection className="container">
         <div className="contact__layout">
           <div className="contact__left">
             <span className="section__label">Get in Touch</span>
@@ -1286,7 +1344,7 @@ function ContactSection() {
             </form>
           </div>
         </div>
-      </div>
+      </FadeInSection>
       {/* Toast Notification */}
       <div className={`toast ${status === 'success' ? 'toast--visible' : ''}`}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
