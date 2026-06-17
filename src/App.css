@@ -587,6 +587,9 @@
   box-shadow:
     0 20px 40px -15px rgba(0, 0, 0, 0.08),
     0 0 0 1px rgba(0, 0, 0, 0.02);
+  transition: transform 0.05s ease-out,
+    box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s ease;
 }
 
 .project-card:hover .project-card__visual::after {
@@ -1385,11 +1388,16 @@
   .hero-wrapper--android .hero {
     min-height: auto;
     max-height: none;
-    padding-bottom: var(--space-xl);
+    padding-bottom: 0;
   }
   
   .hero-wrapper--android .hero__overlay {
     display: block !important;
+    padding-bottom: 0 !important;
+  }
+
+  .hero-wrapper--android .hero__title {
+    margin-bottom: var(--space-lg) !important;
   }
 
   .hero-wrapper--android .hero__content-bottom {
@@ -1891,4 +1899,38 @@
   transform: translateY(0) scale(1);
   filter: blur(0);
   visibility: visible;
+}
+
+/* ========================================
+   MOBILE OVERRIDES (Arrows & Lightbox)
+   ======================================== */
+@media (max-width: 768px) {
+  .project-detail__arrow {
+    width: 36px;
+    height: 36px;
+  }
+  .project-detail__arrow svg {
+    width: 20px;
+    height: 20px;
+  }
+  .project-detail__arrow--left {
+    left: 12px;
+  }
+  .project-detail__arrow--right {
+    right: 12px;
+  }
+
+  .lightbox__content {
+    padding: var(--space-md);
+  }
+  .lightbox__close {
+    width: 36px;
+    height: 36px;
+    top: 16px;
+    right: 16px;
+  }
+  .lightbox__close svg {
+    width: 20px;
+    height: 20px;
+  }
 }
