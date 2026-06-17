@@ -1381,6 +1381,21 @@
     display: none !important;
   }
 
+  /* Specific overrides for Android (where Spline is disabled) */
+  .hero-wrapper--android .hero {
+    min-height: auto;
+    max-height: none;
+    padding-bottom: var(--space-xl);
+  }
+  
+  .hero-wrapper--android .hero__overlay {
+    display: block !important;
+  }
+
+  .hero-wrapper--android .hero__content-bottom {
+    display: none !important; /* Hide desktop stats on mobile Android */
+  }
+
   /* Mobile-only stats bar — visible on mobile, directly below hero section */
   .hero__mobile-stats-bar {
     display: flex;

@@ -645,7 +645,7 @@ function HeroSection() {
   }
 
   return (
-    <div className="hero-wrapper">
+    <div className={`hero-wrapper ${isAndroid ? 'hero-wrapper--android' : ''}`}>
       <section className="hero" id="hero">
         {/* Full-screen 3D background */}
         {!isAndroid && (
