@@ -798,10 +798,12 @@ function ProjectCard({ project, index, onNavigate }) {
       const y = e.clientY - rect.top
       const centerX = rect.width / 2
       const centerY = rect.height / 2
-      const rotateX = ((y - centerY) / centerY) * -6 // max 6deg
-      const rotateY = ((x - centerX) / centerX) * 6
+      const rotateX = ((y - centerY) / centerY) * -4 // max 4deg
+      const rotateY = ((x - centerX) / centerX) * 4
 
-      card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`
+      // Force short transition for smooth realtime tracking and override AOS inline styles
+      card.style.transition = 'transform 0.1s ease-out, box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease'
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`
 
       if (spotlightRef.current) {
         spotlightRef.current.style.opacity = '1'
@@ -818,6 +820,8 @@ function ProjectCard({ project, index, onNavigate }) {
     const card = cardRef.current
     if (!card) return
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
+    // Restore smooth transition for reset
+    card.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease'
     card.style.transform = ''
     if (spotlightRef.current) {
       spotlightRef.current.style.opacity = '0'
@@ -913,7 +917,7 @@ function ProjectCard({ project, index, onNavigate }) {
 
 function ProjectCardSkeleton({ index }) {
   const isIOS = getDeviceOS() === 'ios'
-  
+
   const iosProps = isIOS ? {
     className: "project-card project-card--visible",
     style: { animationDelay: `${index * 120}ms`, cursor: 'default' }

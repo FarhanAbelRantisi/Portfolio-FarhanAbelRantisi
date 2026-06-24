@@ -1356,8 +1356,8 @@
 
   /* Hero section: fixed height, clip the 3D to this container */
   .hero {
-    min-height: 75vw;
-    max-height: 460px;
+    min-height: 90vw;
+    max-height: 520px;
     overflow: hidden;
   }
 
@@ -1375,8 +1375,8 @@
   .hero__spline-bg spline-viewer,
   .hero__spline-bg iframe {
     width: 100% !important;
-    transform: scale(1.6) translateY(-5%) !important;
-    transform-origin: center 40% !important;
+    transform: scale(1.1) translateY(0.2%) !important;
+    transform-origin: center center !important;
   }
 
   /* Hide the overlay on mobile (badge + hidden title + content-bottom) */
@@ -1390,7 +1390,7 @@
     max-height: none;
     padding-bottom: 0;
   }
-  
+
   .hero-wrapper--android .hero__overlay {
     display: block !important;
     padding-bottom: 0 !important;
@@ -1401,7 +1401,8 @@
   }
 
   .hero-wrapper--android .hero__content-bottom {
-    display: none !important; /* Hide desktop stats on mobile Android */
+    display: none !important;
+    /* Hide desktop stats on mobile Android */
   }
 
   /* Mobile-only stats bar — visible on mobile, directly below hero section */
@@ -1909,13 +1910,16 @@
     width: 36px;
     height: 36px;
   }
+
   .project-detail__arrow svg {
     width: 20px;
     height: 20px;
   }
+
   .project-detail__arrow--left {
     left: 12px;
   }
+
   .project-detail__arrow--right {
     right: 12px;
   }
@@ -1923,12 +1927,14 @@
   .lightbox__content {
     padding: var(--space-md);
   }
+
   .lightbox__close {
     width: 36px;
     height: 36px;
     top: 16px;
     right: 16px;
   }
+
   .lightbox__close svg {
     width: 20px;
     height: 20px;
