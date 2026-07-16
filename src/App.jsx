@@ -798,11 +798,11 @@ function ProjectCard({ project, index, onNavigate }) {
       const y = e.clientY - rect.top
       const centerX = rect.width / 2
       const centerY = rect.height / 2
-      const rotateX = ((y - centerY) / centerY) * -4 // max 4deg
-      const rotateY = ((x - centerX) / centerX) * 4
+      const rotateX = ((y - centerY) / centerY) * -2 // max 2deg
+      const rotateY = ((x - centerX) / centerX) * 2
 
       // Force short transition for smooth realtime tracking and override AOS inline styles
-      card.style.transition = 'transform 0.1s ease-out, box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease'
+      card.style.transition = 'transform 0.15s ease-out, box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease'
       card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`
 
       if (spotlightRef.current) {
@@ -952,6 +952,15 @@ function ProjectCardSkeleton({ index }) {
 }
 
 function ProjectsSection({ projects, isLoading, onNavigate }) {
+  const [filter, setFilter] = useState('All');
+  const [visibleCount, setVisibleCount] = useState(4);
+
+  // Dynamically get unique categories from projects
+  const categories = ['All', ...Array.from(new Set(projects.map(p => p.category)))].filter(Boolean);
+
+  const filteredProjects = projects.filter(p => filter === 'All' || p.category === filter);
+  const visibleProjects = filteredProjects.slice(0, visibleCount);
+
   const showSkeletons = isLoading && projects.length === 0;
 
   return (
@@ -964,16 +973,48 @@ function ProjectsSection({ projects, isLoading, onNavigate }) {
             Here are some of the things I've built across mobile, web, and design.
           </p>
         </div>
+
+        {/* Filters */}
+        {!showSkeletons && categories.length > 2 && (
+          <div className="projects__filters" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '32px' }}>
+            {categories.map(cat => (
+              <button
+                key={cat}
+                className="btn btn--outline"
+                style={{
+                  padding: '8px 16px',
+                  fontSize: '14px',
+                  borderRadius: '100px',
+                  background: filter === cat ? 'var(--color-text-primary)' : 'transparent',
+                  color: filter === cat ? 'var(--color-text-inverse)' : 'var(--color-text-primary)',
+                  borderColor: filter === cat ? 'var(--color-text-primary)' : 'var(--color-border)'
+                }}
+                onClick={() => { setFilter(cat); setVisibleCount(4); }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="projects__grid">
           {showSkeletons
-            ? Array.from({ length: 6 }).map((_, i) => (
+            ? Array.from({ length: 4 }).map((_, i) => (
               <ProjectCardSkeleton key={i} index={i} />
             ))
-            : projects.map((project, i) => (
+            : visibleProjects.map((project, i) => (
               <ProjectCard key={project.id} project={project} index={i} onNavigate={onNavigate} />
             ))
           }
         </div>
+
+        {!showSkeletons && filteredProjects.length > visibleCount && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '48px' }}>
+            <button className="btn btn--primary" onClick={() => setVisibleCount(prev => prev + 4)}>
+              See More Projects
+            </button>
+          </div>
+        )}
       </div>
     </section>
   )
@@ -1434,10 +1475,16 @@ function App() {
         const { data: { publicUrl } } = supabase.storage.from('project-images').getPublicUrl('profile/avatar.png')
         setProfilePic(`${publicUrl}?t=${new Date().getTime()}`)
 
-        const { data: dbProj, error: projErr } = await supabase
+        let { data: dbProj, error: projErr } = await supabase
           .from('projects')
           .select('*')
-          .order('id', { ascending: true })
+          .order('order_index', { ascending: true, nullsFirst: false })
+
+        if (projErr && projErr.message.includes('order_index')) {
+          const fallback = await supabase.from('projects').select('*').order('id', { ascending: true })
+          dbProj = fallback.data
+          projErr = fallback.error
+        }
 
         if (!projErr && dbProj && dbProj.length > 0) {
           const mappedProj = dbProj.map(p => ({
@@ -1452,10 +1499,16 @@ function App() {
           setProjectsList(mappedProj)
         }
 
-        const { data: dbExp, error: expErr } = await supabase
+        let { data: dbExp, error: expErr } = await supabase
           .from('experiences')
           .select('*')
-          .order('id', { ascending: true })
+          .order('order_index', { ascending: true, nullsFirst: false })
+
+        if (expErr && expErr.message.includes('order_index')) {
+          const fallback = await supabase.from('experiences').select('*').order('id', { ascending: true })
+          dbExp = fallback.data
+          expErr = fallback.error
+        }
 
         if (!expErr && dbExp && dbExp.length > 0) {
           setExperiencesList(dbExp)

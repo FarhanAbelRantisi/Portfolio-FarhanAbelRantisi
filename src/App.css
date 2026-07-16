@@ -1939,4 +1939,26 @@
     width: 20px;
     height: 20px;
   }
+
+  /* Spacing Overrides */
+  .section__header {
+    margin-bottom: var(--space-2xl);
+  }
+  
+  .experience__item {
+    padding: var(--space-lg) 0;
+    gap: var(--space-lg);
+  }
+
+  .project-detail__header {
+    margin-bottom: var(--space-xl);
+  }
+
+  .project-detail__media-container {
+    margin-bottom: var(--space-xl);
+  }
+
+  .project-detail__body {
+    gap: var(--space-xl);
+  }
 }

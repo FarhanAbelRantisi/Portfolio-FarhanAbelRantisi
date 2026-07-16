@@ -96,11 +96,31 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
     }
   }
 
+  const moveImage = (idx, dir) => {
+    setProjectForm(prev => {
+      const arr = [...prev.images]
+      if (idx + dir >= 0 && idx + dir < arr.length) {
+        [arr[idx], arr[idx + dir]] = [arr[idx + dir], arr[idx]]
+      }
+      return { ...prev, images: arr }
+    })
+  }
+
   const removeImage = (idx) => {
     setProjectForm(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))
   }
 
   const [uploadingVideo, setUploadingVideo] = useState(false)
+
+  const moveVideo = (idx, dir) => {
+    setProjectForm(prev => {
+      const arr = [...prev.videos]
+      if (idx + dir >= 0 && idx + dir < arr.length) {
+        [arr[idx], arr[idx + dir]] = [arr[idx + dir], arr[idx]]
+      }
+      return { ...prev, videos: arr }
+    })
+  }
 
   // Handle video upload to Supabase storage (appends to videos array)
   const handleVideoUpload = async (e) => {
@@ -177,18 +197,30 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
     if (!supabase) return
     setDataLoading(true)
     try {
-      const { data: projData, error: projErr } = await supabase
+      let { data: projData, error: projErr } = await supabase
         .from('projects')
         .select('*')
-        .order('id', { ascending: true })
+        .order('order_index', { ascending: true, nullsFirst: false })
+
+      if (projErr && projErr.message.includes('order_index')) {
+        const fallback = await supabase.from('projects').select('*').order('id', { ascending: true })
+        projData = fallback.data
+        projErr = fallback.error
+      }
 
       if (projErr) throw projErr
       setProjects(projData || [])
 
-      const { data: expData, error: expErr } = await supabase
+      let { data: expData, error: expErr } = await supabase
         .from('experiences')
         .select('*')
-        .order('id', { ascending: true })
+        .order('order_index', { ascending: true, nullsFirst: false })
+
+      if (expErr && expErr.message.includes('order_index')) {
+        const fallback = await supabase.from('experiences').select('*').order('id', { ascending: true })
+        expData = fallback.data
+        expErr = fallback.error
+      }
 
       if (expErr) throw expErr
       setExperiences(expData || [])
@@ -197,6 +229,50 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       showStatus('Failed to load database content: ' + error.message, 'error')
     } finally {
       setDataLoading(false)
+    }
+  }
+
+  const moveProject = async (index, dir) => {
+    if (index + dir < 0 || index + dir >= projects.length) return
+    const newProjects = [...projects]
+    const temp = newProjects[index]
+    newProjects[index] = newProjects[index + dir]
+    newProjects[index + dir] = temp
+    setProjects(newProjects)
+
+    if (!supabase) return
+    try {
+      for (let i = 0; i < newProjects.length; i++) {
+        const { error } = await supabase.from('projects').update({ order_index: i }).eq('id', newProjects[i].id)
+        if (error) throw error
+      }
+    } catch (e) {
+      if (e.message.includes('order_index')) {
+        showStatus('Harap buat kolom "order_index" (tipe int8) di tabel projects pada Supabase Anda untuk menyimpan urutan!', 'error')
+      } else {
+        showStatus('Gagal menyimpan urutan: ' + e.message, 'error')
+      }
+    }
+  }
+
+  const moveExperience = async (index, dir) => {
+    if (index + dir < 0 || index + dir >= experiences.length) return
+    const newExps = [...experiences]
+    const temp = newExps[index]
+    newExps[index] = newExps[index + dir]
+    newExps[index + dir] = temp
+    setExperiences(newExps)
+
+    if (!supabase) return
+    try {
+      for (let i = 0; i < newExps.length; i++) {
+        const { error } = await supabase.from('experiences').update({ order_index: i }).eq('id', newExps[i].id)
+        if (error) throw error
+      }
+    } catch (e) {
+      if (e.message.includes('order_index')) {
+        showStatus('Harap buat kolom "order_index" (tipe int8) di tabel experiences pada Supabase Anda untuk menyimpan urutan!', 'error')
+      }
     }
   }
 
@@ -687,7 +763,9 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
                             </div>
                           </td>
                           <td>
-                            <div className="admin-actions-cell">
+                            <div className="admin-actions-cell" style={{ gap: '4px' }}>
+                              <button onClick={() => moveProject(projects.indexOf(proj), -1)} disabled={projects.indexOf(proj) === 0} className="admin-action-btn admin-action-btn--outline" title="Move Up">↑</button>
+                              <button onClick={() => moveProject(projects.indexOf(proj), 1)} disabled={projects.indexOf(proj) === projects.length - 1} className="admin-action-btn admin-action-btn--outline" title="Move Down">↓</button>
                               <button onClick={() => openEditProject(proj)} className="admin-action-btn admin-action-btn--edit">
                                 Edit
                               </button>
@@ -738,7 +816,9 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
                           <td><span className="admin-period-pill">{exp.period}</span></td>
                           <td><p className="admin-desc-cell">{exp.description}</p></td>
                           <td>
-                            <div className="admin-actions-cell">
+                            <div className="admin-actions-cell" style={{ gap: '4px' }}>
+                              <button onClick={() => moveExperience(experiences.indexOf(exp), -1)} disabled={experiences.indexOf(exp) === 0} className="admin-action-btn admin-action-btn--outline" title="Move Up">↑</button>
+                              <button onClick={() => moveExperience(experiences.indexOf(exp), 1)} disabled={experiences.indexOf(exp) === experiences.length - 1} className="admin-action-btn admin-action-btn--outline" title="Move Down">↓</button>
                               <button onClick={() => openEditExp(exp)} className="admin-action-btn admin-action-btn--edit">
                                 Edit
                               </button>
@@ -881,7 +961,11 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
                     {projectForm.images.map((url, idx) => (
                       <div key={idx} className="admin-media-item">
                         <img src={url} alt={`Image ${idx + 1}`} className="admin-media-thumb" />
-                        <span className="admin-media-label">Image {idx + 1}</span>
+                        <span className="admin-media-label" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                          Image {idx + 1}
+                          <button type="button" onClick={() => moveImage(idx, -1)} disabled={idx === 0} style={{ padding: '0 4px', cursor: 'pointer', background: 'none', border: 'none', color: 'inherit' }}>◀</button>
+                          <button type="button" onClick={() => moveImage(idx, 1)} disabled={idx === projectForm.images.length - 1} style={{ padding: '0 4px', cursor: 'pointer', background: 'none', border: 'none', color: 'inherit' }}>▶</button>
+                        </span>
                         <button type="button" className="admin-media-remove" onClick={() => removeImage(idx)}>✕</button>
                       </div>
                     ))}
@@ -909,7 +993,11 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
                     {projectForm.videos.map((url, idx) => (
                       <div key={idx} className="admin-media-item">
                         <video src={url} muted className="admin-media-thumb" />
-                        <span className="admin-media-label">Video {idx + 1}</span>
+                        <span className="admin-media-label" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                          Video {idx + 1}
+                          <button type="button" onClick={() => moveVideo(idx, -1)} disabled={idx === 0} style={{ padding: '0 4px', cursor: 'pointer', background: 'none', border: 'none', color: 'inherit' }}>◀</button>
+                          <button type="button" onClick={() => moveVideo(idx, 1)} disabled={idx === projectForm.videos.length - 1} style={{ padding: '0 4px', cursor: 'pointer', background: 'none', border: 'none', color: 'inherit' }}>▶</button>
+                        </span>
                         <button type="button" className="admin-media-remove" onClick={() => removeVideo(idx)}>✕</button>
                       </div>
                     ))}
