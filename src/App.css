@@ -512,6 +512,21 @@
 /* ========================================
    PROJECTS
    ======================================== */
+.projects__filters {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-2xl);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.projects__filter-btn {
+  padding: 8px 18px;
+  font-size: var(--text-sm);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
 .projects__grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1960,5 +1975,19 @@
 
   .project-detail__body {
     gap: var(--space-xl);
+  }
+
+  .projects__filters {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    padding-bottom: 4px;
+    margin-bottom: var(--space-xl);
+  }
+
+  .projects__filters::-webkit-scrollbar {
+    display: none;
   }
 }

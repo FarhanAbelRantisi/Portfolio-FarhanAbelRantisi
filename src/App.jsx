@@ -976,15 +976,12 @@ function ProjectsSection({ projects, isLoading, onNavigate }) {
 
         {/* Filters */}
         {!showSkeletons && categories.length > 2 && (
-          <div className="projects__filters" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '32px' }}>
+          <div className="projects__filters">
             {categories.map(cat => (
               <button
                 key={cat}
-                className="btn btn--outline"
+                className="btn btn--outline projects__filter-btn"
                 style={{
-                  padding: '8px 16px',
-                  fontSize: '14px',
-                  borderRadius: '100px',
                   background: filter === cat ? 'var(--color-text-primary)' : 'transparent',
                   color: filter === cat ? 'var(--color-text-inverse)' : 'var(--color-text-primary)',
                   borderColor: filter === cat ? 'var(--color-text-primary)' : 'var(--color-border)'
