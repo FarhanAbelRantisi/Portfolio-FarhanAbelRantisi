@@ -986,15 +986,26 @@
    ======================================== */
 .about__layout {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
+  grid-template-columns: 1.1fr 0.9fr;
   gap: var(--space-4xl);
-  align-items: start;
+  align-items: center;
+}
+
+.about__left .section__label {
+  display: block;
+  margin-bottom: var(--space-lg);
+  text-align: left;
+}
+
+.about__left .section__title {
+  text-align: left;
+  margin-bottom: var(--space-xl);
 }
 
 .about__text {
   font-size: var(--text-base);
   color: var(--color-text-secondary);
-  line-height: 1.8;
+  line-height: 1.85;
   margin-bottom: var(--space-lg);
 }
 
@@ -1003,15 +1014,48 @@
   font-weight: 600;
 }
 
-.about__skills {
-  margin-top: var(--space-2xl);
+.about__photo-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
 }
 
-.about__skills-title {
-  font-family: var(--font-heading);
-  font-size: var(--text-base);
-  font-weight: 600;
-  margin-bottom: var(--space-lg);
+.about__photo-bg {
+  position: absolute;
+  inset: -16px;
+  background: radial-gradient(ellipse at 50% 50%, var(--color-accent-subtle) 0%, transparent 70%);
+  border-radius: var(--radius-xl);
+  z-index: 0;
+}
+
+.about__profile-img {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  height: 420px;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xl), 0 0 0 8px rgba(255,255,255,0.5);
+  z-index: 1;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+}
+
+.about__profile-img:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: var(--shadow-2xl), 0 0 0 8px rgba(255,255,255,0.5);
+}
+
+.about__photo-placeholder {
+  width: 100%;
+  max-width: 340px;
+  height: 420px;
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-alt);
+  border: 1px dashed var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .about__skills-grid {
@@ -1057,6 +1101,84 @@
 
 .about__skill-tag:hover svg {
   transform: scale(1.2) rotate(8deg);
+}
+
+/* GitHub Calendar Card */
+.github-calendar-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  margin-bottom: var(--space-3xl);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s ease;
+}
+
+.github-calendar-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.github-calendar-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-lg) var(--space-xl);
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  background: var(--color-bg-alt);
+}
+
+.github-calendar-card__link {
+  margin-left: auto;
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.github-calendar-card__link:hover {
+  opacity: 0.7;
+}
+
+.github-calendar-card__body {
+  padding: var(--space-xl);
+  overflow-x: auto;
+}
+
+/* Techstack section */
+.techstack__section {
+  margin-top: var(--space-lg);
+}
+
+.techstack__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-lg);
+}
+
+@media (max-width: 768px) {
+  .about__layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+  }
+
+  .about__right {
+    order: -1;
+  }
+
+  .about__profile-img,
+  .about__photo-placeholder {
+    max-width: 100%;
+    height: 300px;
+  }
+
+  .github-calendar-card__body {
+    padding: var(--space-lg);
+  }
 }
 
 /* ========================================
