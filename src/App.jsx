@@ -410,7 +410,7 @@ const SKILLS = [
   { name: 'React JS', color: '#61DAFB', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg', icon: <ReactIcon /> },
   { name: 'Tailwind CSS', color: '#06B6D4', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg' },
   { name: 'Node JS', color: '#339933', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg' },
-  { name: 'Express JS', color: '#FFFFFF', iconUrl: 'https://cdn.simpleicons.org/express/white' },
+  { name: 'Express JS', color: '#111111', iconUrl: 'https://cdn.simpleicons.org/express/000000' },
   { name: 'FastAPI', color: '#009688', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg' },
   { name: 'PostgreSQL', color: '#4169E1', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg' },
   { name: 'Firebase', color: '#FFCA28', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/firebase/firebase-original.svg', icon: <FirebaseIcon /> },
@@ -511,30 +511,52 @@ function Navbar({ onNavClick }) {
   )
 }
 
-/* ========================================
-   HERO SECTION — Full-screen Spline 3D
-   ======================================== */
+/* Detect if device is capable of running Spline smoothly */
+const isSplineCapable = () => {
+  if (typeof window === 'undefined') return false
+  const isIOS = getDeviceOS() === 'ios'
+  if (isIOS) return true
+  const isDesktop = window.innerWidth >= 1024
+  const cpuCores = navigator.hardwareConcurrency || 2
+  const mem = navigator.deviceMemory || 2       // GB, Chrome only (undefined elsewhere = assume capable)
+  const conn = navigator.connection?.effectiveType // '4g', '3g', '2g', 'slow-2g'
+  const slowConn = conn === '2g' || conn === 'slow-2g'
+  return isDesktop && cpuCores >= 4 && mem >= 4 && !slowConn
+}
+
 function HeroSection() {
   const isAndroid = getDeviceOS() === 'android'
+  const isIOS = getDeviceOS() === 'ios'
   const [mounted, setMounted] = useState(false)
-  const [splineLoaded, setSplineLoaded] = useState(false)
+  const [splineReady, setSplineReady] = useState(false)
+  const [showSpline, setShowSpline] = useState(false)   // enabled after capability check
   const animFrameRef = useRef(null)
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 100)
+
+    // Delay Spline init until after first paint + idle — reduces jank on page load
+    const checkAndLoad = () => {
+      if (isSplineCapable()) {
+        setShowSpline(true)
+      }
+    }
+
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(checkAndLoad, { timeout: 2000 })
+    } else {
+      setTimeout(checkAndLoad, 800)
+    }
+
     return () => {
       clearTimeout(t)
-      // Clean up the animation loop when component unmounts
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current)
-      }
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
     }
   }, [])
 
   const handleSplineLoad = (app) => {
-    setSplineLoaded(true)
+    setSplineReady(true)
 
-    // Debug: log all scene object names as readable text
     try {
       const objects = app.getAllObjects()
       const names = objects.map(o => o.name).join(', ')
@@ -645,16 +667,14 @@ function HeroSection() {
     }
   }
 
-  return (
+  const textOnlyHero = (
     <div className={`hero-wrapper ${isAndroid ? 'hero-wrapper--android' : ''}`}>
       <section className="hero hero--text-only" id="hero">
-        {/* Decorative background elements */}
         <div className="hero__bg-decor">
           <div className="hero__bg-orb hero__bg-orb--1" />
           <div className="hero__bg-orb hero__bg-orb--2" />
           <div className="hero__bg-grid" />
         </div>
-
         <div className="hero__overlay hero__overlay--text">
           <div className={`hero__text ${mounted ? 'hero__text--visible' : ''}`}>
             <div className="hero__badge">
@@ -663,37 +683,89 @@ function HeroSection() {
             </div>
             <h1 className="hero__title">
               I'm <em className="hero__name">Farhan</em>,{' '}
-              <span className="hero__title-rest">
-                a developer &amp; designer.
-              </span>
+              <span className="hero__title-rest">a developer &amp; designer.</span>
             </h1>
             <p className="hero__subtitle">
               I build mobile apps, websites, and user interfaces.
               I focus on creating clean, intuitive experiences that just work.
             </p>
             <div className="hero__actions">
-              <a href="#projects" className="btn btn--primary" id="hero-cta-projects">
-                View Projects
-                <ArrowUpRight />
-              </a>
-              <a href="#contact" className="btn btn--outline" id="hero-cta-contact">
-                Get in Touch
-              </a>
+              <a href="#projects" className="btn btn--primary" id="hero-cta-projects">View Projects <ArrowUpRight /></a>
+              <a href="#contact" className="btn btn--outline" id="hero-cta-contact">Get in Touch</a>
             </div>
             <div className="hero__stats hero__stats--inline">
-              <div className="hero__stat">
-                <span className="hero__stat-number">2+</span>
-                <span className="hero__stat-label">Years Experience</span>
-              </div>
+              <div className="hero__stat"><span className="hero__stat-number">2+</span><span className="hero__stat-label">Years Experience</span></div>
               <div className="hero__stat-divider" />
-              <div className="hero__stat">
-                <span className="hero__stat-number">20+</span>
-                <span className="hero__stat-label">Projects Built</span>
-              </div>
+              <div className="hero__stat"><span className="hero__stat-number">20+</span><span className="hero__stat-label">Projects Built</span></div>
               <div className="hero__stat-divider" />
-              <div className="hero__stat">
-                <span className="hero__stat-number">100+</span>
-                <span className="hero__stat-label">Screens Designed</span>
+              <div className="hero__stat"><span className="hero__stat-number">100+</span><span className="hero__stat-label">Screens Designed</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      {isAndroid && (
+        <>
+          <div className="hero__mobile-stats-bar">
+            <div className="hero__stat"><span className="hero__stat-number">2+</span><span className="hero__stat-label">Years Experience</span></div>
+            <div className="hero__stat-divider" />
+            <div className="hero__stat"><span className="hero__stat-number">20+</span><span className="hero__stat-label">Projects Built</span></div>
+            <div className="hero__stat-divider" />
+            <div className="hero__stat"><span className="hero__stat-number">100+</span><span className="hero__stat-label">Screens Designed</span></div>
+          </div>
+          <div className="hero__mobile-text">
+            <p className="hero__subtitle">I build mobile apps, websites, and user interfaces. I focus on creating clean, intuitive experiences that just work.</p>
+            <div className="hero__actions">
+              <a href="#projects" className="btn btn--primary" id="hero-cta-projects-m">View Projects <ArrowUpRight /></a>
+              <a href="#contact" className="btn btn--outline" id="hero-cta-contact-m">Get in Touch</a>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+
+  if (!showSpline || isAndroid) return textOnlyHero
+
+  // Spline mode — capable desktop only, loads after idle
+  return (
+    <div className="hero-wrapper">
+      <section className="hero" id="hero">
+        <div
+          className="hero__spline-bg"
+          id="spline-container"
+          style={{ opacity: splineReady ? 1 : 0, transition: 'opacity 1s ease' }}
+        >
+          <SplineScene
+            scene="https://prod.spline.design/WAeofjQyEIkU-qty/scene.splinecode"
+            onLoad={handleSplineLoad}
+          />
+        </div>
+        <div className="hero__overlay">
+          <div className={`hero__text ${mounted ? 'hero__text--visible' : ''}`}>
+            <div className="hero__badge">
+              <span className="hero__badge-dot"></span>
+              Available for new projects
+            </div>
+            <h1 className="hero__title" style={{ visibility: 'hidden', height: '300px', marginBottom: '10px', overflow: 'hidden' }}>
+              I'm <em className="hero__name">Farhan</em>,{' '}
+              <span className="hero__title-rest">a developer &amp; designer.</span>
+            </h1>
+            <div className="hero__content-bottom">
+              <div className="hero__left-block">
+                <div className="hero__stats" style={{ visibility: 'hidden' }}>
+                  <div className="hero__stat"><span className="hero__stat-number">2+</span><span className="hero__stat-label">Years Experience</span></div>
+                  <div className="hero__stat-divider" />
+                  <div className="hero__stat"><span className="hero__stat-number">20+</span><span className="hero__stat-label">Projects Built</span></div>
+                  <div className="hero__stat-divider" />
+                  <div className="hero__stat"><span className="hero__stat-number">100+</span><span className="hero__stat-label">Screens Designed</span></div>
+                </div>
+              </div>
+              <div className="hero__stats hero__stats--desktop">
+                <div className="hero__stat"><span className="hero__stat-number">2+</span><span className="hero__stat-label">Years Experience</span></div>
+                <div className="hero__stat-divider" />
+                <div className="hero__stat"><span className="hero__stat-number">20+</span><span className="hero__stat-label">Projects Built</span></div>
+                <div className="hero__stat-divider" />
+                <div className="hero__stat"><span className="hero__stat-number">100+</span><span className="hero__stat-label">Screens Designed</span></div>
               </div>
             </div>
           </div>
@@ -703,6 +775,7 @@ function HeroSection() {
   )
 }
 
+
 /* ========================================
    PROJECTS SECTION
    ======================================== */
@@ -711,7 +784,6 @@ function ProjectCard({ project, index, onNavigate }) {
   const cardRef = useRef(null)
   const [isVisible, setIsVisible] = useState(false)
 
-  const spotlightRef = useRef(null)
   const animFrameRef = useRef(null)
 
   useEffect(() => {
@@ -724,7 +796,7 @@ function ProjectCard({ project, index, onNavigate }) {
     return () => observer.disconnect()
   }, [isIOS])
 
-  // 3D Tilt + Spotlight tracking
+  // 3D Tilt tracking without spotlight shine
   const handleMouseMove = (e) => {
     const card = cardRef.current
     if (!card) return
@@ -739,18 +811,9 @@ function ProjectCard({ project, index, onNavigate }) {
       const rotateX = ((y - centerY) / centerY) * -2 // max 2deg
       const rotateY = ((x - centerX) / centerX) * 2
 
-      // Force short transition for smooth realtime tracking and override AOS inline styles
+      // Force short transition for smooth realtime tracking
       card.style.transition = 'transform 0.15s ease-out, box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease'
       card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`
-
-      if (spotlightRef.current) {
-        spotlightRef.current.style.opacity = '1'
-        spotlightRef.current.style.background = `radial-gradient(
-          600px circle at ${x}px ${y}px,
-          ${project.color}18,
-          transparent 40%
-        )`
-      }
     })
   }
 
@@ -758,12 +821,8 @@ function ProjectCard({ project, index, onNavigate }) {
     const card = cardRef.current
     if (!card) return
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
-    // Restore smooth transition for reset
     card.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease'
     card.style.transform = ''
-    if (spotlightRef.current) {
-      spotlightRef.current.style.opacity = '0'
-    }
   }
 
   const iosProps = isIOS ? {
@@ -784,9 +843,6 @@ function ProjectCard({ project, index, onNavigate }) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Spotlight overlay */}
-      <div ref={spotlightRef} className="project-card__spotlight" />
-
       {/* Accent border glow on hover */}
       <div className="project-card__glow" style={{ '--card-accent': project.color }} />
 
@@ -1239,11 +1295,19 @@ function TechAndGithubSection() {
         {/* GitHub Activity — full width */}
         <div className="github-calendar-card">
           <div className="github-calendar-card__header">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="GitHub">
-              <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
-            </svg>
-            <span>GitHub Contributions</span>
-            <a href="https://github.com/FarhanAbelRantisi" target="_blank" rel="noreferrer" className="github-calendar-card__link">@FarhanAbelRantisi ↗</a>
+            <div className="github-calendar-card__title">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-label="GitHub">
+                <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
+              </svg>
+              <span>GitHub Contributions</span>
+              <span className="github-calendar-card__status">
+                <span className="github-calendar-card__status-dot"></span>
+                Active
+              </span>
+            </div>
+            <a href="https://github.com/FarhanAbelRantisi" target="_blank" rel="noreferrer" className="github-calendar-card__link">
+              @FarhanAbelRantisi ↗
+            </a>
           </div>
           <div className="github-calendar-card__body">
             <GitHubCalendar
@@ -1253,7 +1317,7 @@ function TechAndGithubSection() {
               blockSize={13}
               blockMargin={4}
               theme={{
-                light: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'],
+                light: ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'],
               }}
             />
           </div>
