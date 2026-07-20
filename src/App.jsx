@@ -4,7 +4,7 @@ import 'aos/dist/aos.css'
 import './App.css'
 import { supabase } from './supabaseClient'
 import AdminPage from './AdminPage'
-import GitHubCalendar from 'react-github-calendar'
+import { GitHubCalendar } from 'react-github-calendar'
 
 /* ========================================
    SPLINE 3D (lazy-loaded ~500KB+)
