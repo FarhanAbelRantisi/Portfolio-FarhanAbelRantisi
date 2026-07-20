@@ -15,7 +15,8 @@
     "aos": "^2.3.4",
     "browser-image-compression": "^2.0.2",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-github-calendar": "^5.0.6"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.5.2",

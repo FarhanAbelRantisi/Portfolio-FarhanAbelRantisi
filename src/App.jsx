@@ -4,6 +4,7 @@ import 'aos/dist/aos.css'
 import './App.css'
 import { supabase } from './supabaseClient'
 import AdminPage from './AdminPage'
+import GitHubCalendar from 'react-github-calendar'
 
 /* ========================================
    SPLINE 3D (lazy-loaded ~500KB+)
@@ -1238,21 +1239,6 @@ function AboutSection({ profilePic }) {
             <p className="about__text">
               I'm currently taking on freelance projects. If you need help building an app, a website, or designing a product, let's talk.
             </p>
-            <div className="about__skills">
-              <h3 className="about__skills-title">Tech Stack</h3>
-              <div className="about__skills-grid">
-                {SKILLS.map(skill => (
-                  <span
-                    key={skill.name}
-                    className="about__skill-tag"
-                    style={{ '--skill-color': skill.color }}
-                  >
-                    {skill.iconUrl ? <img src={skill.iconUrl} alt={skill.name} width="20" height="20" /> : skill.icon}
-                    <span>{skill.name}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </FadeInSection>
@@ -1287,6 +1273,50 @@ function ExperienceSection({ experiences }) {
               </div>
             </div>
           ))}
+        </div>
+      </FadeInSection>
+    </section>
+  )
+}
+
+/* ========================================
+   TECH & GITHUB SECTION
+   ======================================== */
+function TechAndGithubSection() {
+  return (
+    <section className="section tech-github" id="tech-github">
+      <FadeInSection className="container">
+        <div className="tech-github__layout">
+          <div className="tech-github__left">
+            <h3 className="section__title" style={{ fontSize: 'var(--text-3xl)', marginBottom: 'var(--space-xl)' }}>Tech Stack</h3>
+            <div className="about__skills-grid">
+              {SKILLS.map(skill => (
+                <span
+                  key={skill.name}
+                  className="about__skill-tag"
+                  style={{ '--skill-color': skill.color }}
+                >
+                  {skill.iconUrl ? <img src={skill.iconUrl} alt={skill.name} width="20" height="20" /> : skill.icon}
+                  <span>{skill.name}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="tech-github__right">
+            <h3 className="section__title" style={{ fontSize: 'var(--text-3xl)', marginBottom: 'var(--space-xl)' }}>GitHub Activity</h3>
+            <div className="github-calendar-wrapper" style={{ overflowX: 'auto', paddingBottom: '16px', background: 'var(--color-bg-alt)', padding: '24px', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+              <GitHubCalendar 
+                username="FarhanAbelRantisi" 
+                colorScheme="light"
+                fontSize={14}
+                blockSize={12}
+                blockMargin={4}
+                theme={{
+                  light: ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'],
+                }}
+              />
+            </div>
+          </div>
         </div>
       </FadeInSection>
     </section>
@@ -1593,6 +1623,7 @@ function App() {
         <ProjectsSection projects={projectsList} isLoading={isProjectsLoading} onNavigate={navigate} />
         <AboutSection profilePic={profilePic} />
         <ExperienceSection experiences={experiencesList} />
+        <TechAndGithubSection />
         <ContactSection />
       </main>
       <Footer onNavClick={handleNavClick} />
