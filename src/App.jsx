@@ -1197,9 +1197,25 @@ function AboutSection({ profilePic }) {
           </div>
           <div className="about__right">
             {profilePic ? (
-              <div className="about__photo-wrapper">
-                <div className="about__photo-bg" />
-                <img src={profilePic} alt="Farhan Abel Rantisi" className="about__profile-img" onError={(e) => e.target.style.display = 'none'} />
+              <div className="about__photo-container">
+                <div className="about__photo-glow" />
+                <div className="about__photo-wrapper">
+                  <span className="about__photo-corner about__photo-corner--tl">+</span>
+                  <span className="about__photo-corner about__photo-corner--br">+</span>
+
+                  <div className="about__photo-badge about__photo-badge--top">
+                    <span className="about__photo-badge-dot" />
+                    <span>Based in Jambi, ID</span>
+                  </div>
+
+                  <img src={profilePic} alt="Farhan Abel Rantisi" className="about__profile-img" onError={(e) => e.target.style.display = 'none'} />
+                  <div className="about__photo-shine" />
+
+                  <div className="about__photo-badge about__photo-badge--bottom">
+                    <span className="about__photo-badge-icon">⚡</span>
+                    <span>Full-Stack &amp; UI/UX</span>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="about__photo-placeholder">
