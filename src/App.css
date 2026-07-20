@@ -444,7 +444,7 @@
   .hero__stats--inline { flex-wrap: wrap; width: 100%; }
 }
 
-/* Legacy Spline bg (unused) */
+/* Spline 3D background */
 .hero__spline-bg {
   position: absolute;
   inset: 0;

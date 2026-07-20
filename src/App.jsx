@@ -526,36 +526,22 @@ const isSplineCapable = () => {
 
 function HeroSection() {
   const isAndroid = getDeviceOS() === 'android'
-  const isIOS = getDeviceOS() === 'ios'
   const [mounted, setMounted] = useState(false)
-  const [splineReady, setSplineReady] = useState(false)
-  const [showSpline, setShowSpline] = useState(false)   // enabled after capability check
+  const [splineLoaded, setSplineLoaded] = useState(false)
   const animFrameRef = useRef(null)
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 100)
-
-    // Delay Spline init until after first paint + idle — reduces jank on page load
-    const checkAndLoad = () => {
-      if (isSplineCapable()) {
-        setShowSpline(true)
-      }
-    }
-
-    if (typeof requestIdleCallback !== 'undefined') {
-      requestIdleCallback(checkAndLoad, { timeout: 2000 })
-    } else {
-      setTimeout(checkAndLoad, 800)
-    }
-
     return () => {
       clearTimeout(t)
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current)
+      }
     }
   }, [])
 
   const handleSplineLoad = (app) => {
-    setSplineReady(true)
+    setSplineLoaded(true)
 
     try {
       const objects = app.getAllObjects()
@@ -563,55 +549,35 @@ function HeroSection() {
       console.log('[Spline] Found', objects.length, 'objects:', names)
     } catch (e) { }
 
-    // Find key objects
     const body = app.findObjectByName('Body')
     const cursorTarget = app.findObjectByName('Cursor Target')
     const robot = app.findObjectByName('Robot')
-    // Find ALL head parts (Helmet, Eyes, ears, shield) so they move together
     const allObjects = app.getAllObjects()
     const headPartNames = ['Helmet', 'Head', 'head', 'Eyes', 'ear', 'Shield']
     const headParts = allObjects.filter(o => headPartNames.includes(o.name))
-
-    // Find Collar parts separately so we can bridge them
     const collars = allObjects.filter(o => o.name === 'Collar')
-
-    // Cari Emote (Message) agar kita bisa buat efek "trailing" (tertinggal) di JS
     const emotes = allObjects.filter(o => o.name.includes('Message'))
 
     console.log('[Spline] Body:', !!body, '| Robot:', !!robot, '| Head Parts:', headParts.length, '| Emotes:', emotes.length)
 
-    // Unified animation loop: controls robot movement, head lead, + body rolling
     if (robot && cursorTarget) {
-      let smoothCursorX = 0   // smoothed cursor target (removes jitter)
-      let smoothX = 0         // smoothed robot position (slow follow)
+      let smoothCursorX = 0
+      let smoothX = 0
       let currentRotation = 0
 
-      // Store original X positions for head parts
       const headOrigX = headParts.map(part => part.position.x)
-
-      // Store original X positions and Z rotations for collars
       const collarOrigX = collars.map(c => c.position.x)
       const collarOrigRotZ = collars.map(c => c.rotation.z)
-
-      // Simpan jarak awal emote terhadap robot, agar mereka menjaga formasinya
       const emoteOffsetsX = emotes.map(e => e.position.x - robot.position.x)
 
       const update = () => {
         try {
-          // Double-smoothing to eliminate jitter on fast cursor moves:
-          // Step 1: Smooth the raw cursor target position first
           smoothCursorX += (cursorTarget.position.x - smoothCursorX) * 0.08
-
-          // Step 2: Slowly follow the smoothed cursor position
           const targetX = smoothCursorX * 0.6
           smoothX += (targetX - smoothX) * 0.04
           robot.position.x = smoothX
 
-          // Head leads the body, but with a much smaller multiplier
-          // so it only shifts slightly and doesn't tear off the neck
           let rawLeadOffset = (targetX - smoothX) * 0.07
-
-          // Clamp the offset strictly (max 8 units)
           const MAX_STRETCH = 12
           const leadOffset = Math.max(-MAX_STRETCH, Math.min(MAX_STRETCH, rawLeadOffset))
 
@@ -619,21 +585,16 @@ function HeroSection() {
             part.position.x = headOrigX[i] + leadOffset
           })
 
-          // Collar bridges the gap by moving exactly halfway
           collars.forEach((collar, i) => {
             collar.position.x = collarOrigX[i] + (leadOffset * 1)
-            // Kurangi rotasi (tilt) drastis agar sudut tabung leher tidak menusuk mesh kepala
             collar.rotation.z = collarOrigRotZ[i] - (leadOffset * 0.01)
           })
 
-          // Emotes "tertinggal" (trailing) di belakang robot untuk efek organik
           emotes.forEach((emote, i) => {
             const targetEmoteX = smoothX + emoteOffsetsX[i]
-            // Angka 0.02 membuat pergerakan emote menjadi sangat lambat (karet/lagging)
             emote.position.x += (targetEmoteX - emote.position.x) * 0.02
           })
 
-          // Body rolling: rotate proportional to smoothed position
           if (body) {
             const targetRotation = -smoothX / 150
             currentRotation += (targetRotation - currentRotation) * 0.08
@@ -645,7 +606,6 @@ function HeroSection() {
       update()
       console.log('[Spline] ✅ Robot movement + head lead + body rotation active')
     } else if (body) {
-      // Fallback: at least handle body rotation with mouse
       let mouseX = window.innerWidth / 2
       const onMouseMove = (e) => { mouseX = e.clientX }
       window.addEventListener('mousemove', onMouseMove)
@@ -667,110 +627,117 @@ function HeroSection() {
     }
   }
 
-  const textOnlyHero = (
-    <div className={`hero-wrapper ${isAndroid ? 'hero-wrapper--android' : ''}`}>
-      <section className="hero hero--text-only" id="hero">
-        <div className="hero__bg-decor">
-          <div className="hero__bg-orb hero__bg-orb--1" />
-          <div className="hero__bg-orb hero__bg-orb--2" />
-          <div className="hero__bg-grid" />
-        </div>
-        <div className="hero__overlay hero__overlay--text">
-          <div className={`hero__text ${mounted ? 'hero__text--visible' : ''}`}>
-            <div className="hero__badge">
-              <span className="hero__badge-dot"></span>
-              Available for new projects
-            </div>
-            <h1 className="hero__title">
-              I'm <em className="hero__name">Farhan</em>,{' '}
-              <span className="hero__title-rest">a developer &amp; designer.</span>
-            </h1>
-            <p className="hero__subtitle">
-              I build mobile apps, websites, and user interfaces.
-              I focus on creating clean, intuitive experiences that just work.
-            </p>
-            <div className="hero__actions">
-              <a href="#projects" className="btn btn--primary" id="hero-cta-projects">View Projects <ArrowUpRight /></a>
-              <a href="#contact" className="btn btn--outline" id="hero-cta-contact">Get in Touch</a>
-            </div>
-            <div className="hero__stats hero__stats--inline">
-              <div className="hero__stat"><span className="hero__stat-number">2+</span><span className="hero__stat-label">Years Experience</span></div>
-              <div className="hero__stat-divider" />
-              <div className="hero__stat"><span className="hero__stat-number">20+</span><span className="hero__stat-label">Projects Built</span></div>
-              <div className="hero__stat-divider" />
-              <div className="hero__stat"><span className="hero__stat-number">100+</span><span className="hero__stat-label">Screens Designed</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-      {isAndroid && (
-        <>
-          <div className="hero__mobile-stats-bar">
-            <div className="hero__stat"><span className="hero__stat-number">2+</span><span className="hero__stat-label">Years Experience</span></div>
-            <div className="hero__stat-divider" />
-            <div className="hero__stat"><span className="hero__stat-number">20+</span><span className="hero__stat-label">Projects Built</span></div>
-            <div className="hero__stat-divider" />
-            <div className="hero__stat"><span className="hero__stat-number">100+</span><span className="hero__stat-label">Screens Designed</span></div>
-          </div>
-          <div className="hero__mobile-text">
-            <p className="hero__subtitle">I build mobile apps, websites, and user interfaces. I focus on creating clean, intuitive experiences that just work.</p>
-            <div className="hero__actions">
-              <a href="#projects" className="btn btn--primary" id="hero-cta-projects-m">View Projects <ArrowUpRight /></a>
-              <a href="#contact" className="btn btn--outline" id="hero-cta-contact-m">Get in Touch</a>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  )
-
-  if (!showSpline || isAndroid) return textOnlyHero
-
-  // Spline mode — capable desktop only, loads after idle
   return (
-    <div className="hero-wrapper">
+    <div className={`hero-wrapper ${isAndroid ? 'hero-wrapper--android' : ''}`}>
       <section className="hero" id="hero">
-        <div
-          className="hero__spline-bg"
-          id="spline-container"
-          style={{ opacity: splineReady ? 1 : 0, transition: 'opacity 1s ease' }}
-        >
-          <SplineScene
-            scene="https://prod.spline.design/WAeofjQyEIkU-qty/scene.splinecode"
-            onLoad={handleSplineLoad}
-          />
-        </div>
+        {!isAndroid && (
+          <div className="hero__spline-bg" id="spline-container">
+            <SplineScene
+              scene="https://prod.spline.design/WAeofjQyEIkU-qty/scene.splinecode"
+              onLoad={handleSplineLoad}
+            />
+          </div>
+        )}
+
         <div className="hero__overlay">
           <div className={`hero__text ${mounted ? 'hero__text--visible' : ''}`}>
             <div className="hero__badge">
               <span className="hero__badge-dot"></span>
               Available for new projects
             </div>
-            <h1 className="hero__title" style={{ visibility: 'hidden', height: '300px', marginBottom: '10px', overflow: 'hidden' }}>
+            <h1 className="hero__title" style={!isAndroid ? { visibility: 'hidden', height: '300px', marginBottom: '10px', overflow: 'hidden' } : {}}>
               I'm <em className="hero__name">Farhan</em>,{' '}
-              <span className="hero__title-rest">a developer &amp; designer.</span>
+              <span className="hero__title-rest">
+                a developer &amp; designer.
+              </span>
             </h1>
             <div className="hero__content-bottom">
               <div className="hero__left-block">
-                <div className="hero__stats" style={{ visibility: 'hidden' }}>
-                  <div className="hero__stat"><span className="hero__stat-number">2+</span><span className="hero__stat-label">Years Experience</span></div>
-                  <div className="hero__stat-divider" />
-                  <div className="hero__stat"><span className="hero__stat-number">20+</span><span className="hero__stat-label">Projects Built</span></div>
-                  <div className="hero__stat-divider" />
-                  <div className="hero__stat"><span className="hero__stat-number">100+</span><span className="hero__stat-label">Screens Designed</span></div>
+                <div className="hero__stats" style={!isAndroid ? { visibility: 'hidden' } : {}}>
+                  <div className="hero__stat">
+                    <span className="hero__stat-number">2+</span>
+                    <span className="hero__stat-label">Years Experience</span>
+                  </div>
+                  <div className="hero__stat-divider"></div>
+                  <div className="hero__stat">
+                    <span className="hero__stat-number">20+</span>
+                    <span className="hero__stat-label">Projects Built</span>
+                  </div>
+                  <div className="hero__stat-divider"></div>
+                  <div className="hero__stat">
+                    <span className="hero__stat-number">100+</span>
+                    <span className="hero__stat-label">Screens Designed</span>
+                  </div>
+                </div>
+                <p className="hero__subtitle hero__subtitle--mobile">
+                  I build mobile apps, websites, and user interfaces.
+                  I focus on creating clean, intuitive experiences that just work.
+                </p>
+
+                <div className="hero__actions hero__actions--mobile">
+                  <a href="#projects" className="btn btn--primary" id="hero-cta-projects">
+                    View Projects
+                    <ArrowUpRight />
+                  </a>
+                  <a href="#contact" className="btn btn--outline" id="hero-cta-contact">
+                    Get in Touch
+                  </a>
                 </div>
               </div>
+
               <div className="hero__stats hero__stats--desktop">
-                <div className="hero__stat"><span className="hero__stat-number">2+</span><span className="hero__stat-label">Years Experience</span></div>
-                <div className="hero__stat-divider" />
-                <div className="hero__stat"><span className="hero__stat-number">20+</span><span className="hero__stat-label">Projects Built</span></div>
-                <div className="hero__stat-divider" />
-                <div className="hero__stat"><span className="hero__stat-number">100+</span><span className="hero__stat-label">Screens Designed</span></div>
+                <div className="hero__stat">
+                  <span className="hero__stat-number">2+</span>
+                  <span className="hero__stat-label">Years Experience</span>
+                </div>
+                <div className="hero__stat-divider"></div>
+                <div className="hero__stat">
+                  <span className="hero__stat-number">20+</span>
+                  <span className="hero__stat-label">Projects Built</span>
+                </div>
+                <div className="hero__stat-divider"></div>
+                <div className="hero__stat">
+                  <span className="hero__stat-number">100+</span>
+                  <span className="hero__stat-label">Screens Designed</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      <div className="hero__mobile-stats-bar">
+        <div className="hero__stat">
+          <span className="hero__stat-number">2+</span>
+          <span className="hero__stat-label">Years Experience</span>
+        </div>
+        <div className="hero__stat-divider"></div>
+        <div className="hero__stat">
+          <span className="hero__stat-number">20+</span>
+          <span className="hero__stat-label">Projects Built</span>
+        </div>
+        <div className="hero__stat-divider"></div>
+        <div className="hero__stat">
+          <span className="hero__stat-number">100+</span>
+          <span className="hero__stat-label">Screens Designed</span>
+        </div>
+      </div>
+
+      <div className="hero__mobile-text">
+        <p className="hero__subtitle">
+          I build mobile apps, websites, and user interfaces.
+          I focus on creating clean, intuitive experiences that just work.
+        </p>
+        <div className="hero__actions">
+          <a href="#projects" className="btn btn--primary" id="hero-cta-projects-m">
+            View Projects
+            <ArrowUpRight />
+          </a>
+          <a href="#contact" className="btn btn--outline" id="hero-cta-contact-m">
+            Get in Touch
+          </a>
+        </div>
+      </div>
     </div>
   )
 }
