@@ -80,14 +80,15 @@
 }
 
 .btn--outline {
-  border: 1.5px solid var(--color-border);
+  border: 1.5px solid var(--color-text-primary);
   color: var(--color-text-primary);
   background: transparent;
 }
 
 .btn--outline:hover {
-  border-color: var(--color-accent);
-  background: var(--color-accent-subtle);
+  border-color: var(--color-text-primary);
+  background: var(--color-text-primary);
+  color: var(--color-text-inverse);
 }
 
 .btn--full {

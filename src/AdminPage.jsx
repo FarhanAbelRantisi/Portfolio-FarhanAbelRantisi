@@ -545,6 +545,33 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
     return supabase.storage.from('project-images').getPublicUrl('profile/avatar.png').data.publicUrl + '?t=' + Date.now()
   })
 
+  const [cvUrl, setCvUrl] = useState('')
+  const [uploadingCv, setUploadingCv] = useState(false)
+
+  // Fetch CV setting when authenticated
+  useEffect(() => {
+    if (!supabase || !session) return
+    const fetchCv = async () => {
+      try {
+        const { data } = await supabase
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'cv_url')
+          .maybeSingle()
+
+        if (data && data.value) {
+          setCvUrl(data.value)
+        } else {
+          const storageUrl = supabase.storage.from('project-images').getPublicUrl('cv/resume.pdf').data.publicUrl
+          setCvUrl(storageUrl)
+        }
+      } catch (e) {
+        console.log('CV fetch note:', e)
+      }
+    }
+    fetchCv()
+  }, [session])
+
   const handleProfilePicUpload = async (e) => {
     const file = e.target.files[0]
     if (!file || !supabase) return
@@ -580,6 +607,71 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
     } finally {
       setUploadingProfile(false)
       e.target.value = ''
+    }
+  }
+
+  const handleCvFileUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file || !supabase) return
+    setUploadingCv(true)
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `cv/CV_Farhan_${Date.now()}.${fileExt}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('project-images')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        })
+
+      if (uploadError) {
+        if (uploadError.message.includes('bucket')) {
+          throw new Error("Storage bucket 'project-images' not found.")
+        }
+        throw uploadError
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('project-images')
+        .getPublicUrl(fileName)
+
+      setCvUrl(publicUrl)
+
+      try {
+        await supabase.from('site_settings').upsert({ key: 'cv_url', value: publicUrl }, { onConflict: 'key' })
+      } catch (dbErr) {
+        console.log('site_settings upsert note:', dbErr)
+      }
+
+      showStatus('CV file uploaded and URL saved successfully!')
+    } catch (err) {
+      showStatus('Failed to upload CV: ' + err.message, 'error')
+    } finally {
+      setUploadingCv(false)
+      e.target.value = ''
+    }
+  }
+
+  const handleSaveCvUrl = async () => {
+    if (!supabase) return
+    setLoading(true)
+    try {
+      const { error } = await supabase
+        .from('site_settings')
+        .upsert({ key: 'cv_url', value: cvUrl }, { onConflict: 'key' })
+
+      if (error && error.message.includes('relation "site_settings" does not exist')) {
+        showStatus('CV URL updated! (Optional: Create table "site_settings" in Supabase for table persistence)', 'success')
+      } else if (error) {
+        throw error
+      } else {
+        showStatus('CV URL saved to database successfully!')
+      }
+    } catch (err) {
+      showStatus('Error saving CV URL: ' + err.message, 'error')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -856,6 +948,71 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
 
                   <input type="file" accept="image/*" onChange={handleProfilePicUpload} disabled={uploadingProfile} className="admin-form-input" />
                   {uploadingProfile && <span className="admin-uploading-text" style={{display: 'block', marginTop: '8px', color: 'var(--color-primary)'}}>Uploading and compressing...</span>}
+                </div>
+
+                {/* CV / Resume Section */}
+                <div className="admin-form-group" style={{maxWidth: '540px', marginTop: '36px', paddingTop: '24px', borderTop: '1px solid var(--color-border)'}}>
+                  <label style={{fontSize: '1.05rem', fontWeight: '700', marginBottom: '4px', display: 'block'}}>Curriculum Vitae (CV / Resume)</label>
+                  <p className="admin-help-text" style={{marginBottom: '16px'}}>
+                    Upload your CV (PDF or Word document) or set a direct link. Users can download this when clicking "Download CV" in the Hero section.
+                  </p>
+
+                  {cvUrl && (
+                    <div style={{marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px'}}>
+                      <a 
+                        href={cvUrl} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className="admin-btn admin-btn--outline"
+                        style={{fontSize: '0.85rem', padding: '6px 14px', display: 'inline-flex', alignItems: 'center', gap: '6px'}}
+                      >
+                        📄 Preview Current CV ↗
+                      </a>
+                    </div>
+                  )}
+
+                  <div style={{marginBottom: '16px'}}>
+                    <label style={{fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '6px', display: 'block'}}>
+                      Upload New CV File (.pdf, .doc, .docx):
+                    </label>
+                    <input 
+                      type="file" 
+                      accept=".pdf,.doc,.docx" 
+                      onChange={handleCvFileUpload} 
+                      disabled={uploadingCv} 
+                      className="admin-form-input" 
+                    />
+                    {uploadingCv && (
+                      <span className="admin-uploading-text" style={{display: 'block', marginTop: '8px', color: '#10b981'}}>
+                        Uploading CV to storage...
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <label style={{fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '6px', display: 'block'}}>
+                      Or Custom Direct Link / Google Drive URL:
+                    </label>
+                    <div style={{display: 'flex', gap: '8px'}}>
+                      <input 
+                        type="url" 
+                        placeholder="https://.../my-cv.pdf" 
+                        value={cvUrl || ''} 
+                        onChange={e => setCvUrl(e.target.value)} 
+                        className="admin-form-input" 
+                        style={{flex: 1}}
+                      />
+                      <button 
+                        type="button" 
+                        onClick={handleSaveCvUrl} 
+                        disabled={loading}
+                        className="admin-btn admin-btn--primary" 
+                        style={{whiteSpace: 'nowrap'}}
+                      >
+                        Save URL
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

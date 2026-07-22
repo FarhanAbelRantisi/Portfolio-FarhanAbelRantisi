@@ -525,7 +525,7 @@ const isSplineCapable = () => {
   return isDesktop && cpuCores >= 4 && mem >= 4 && !slowConn
 }
 
-function HeroSection() {
+function HeroSection({ cvUrl }) {
   const isAndroid = getDeviceOS() === 'android'
   const [mounted, setMounted] = useState(false)
   const [splineLoaded, setSplineLoaded] = useState(false)
@@ -545,86 +545,98 @@ function HeroSection() {
     setSplineLoaded(true)
 
     try {
-      const objects = app.getAllObjects()
-      const names = objects.map(o => o.name).join(', ')
-      console.log('[Spline] Found', objects.length, 'objects:', names)
-    } catch (e) { }
+      const allObjects = app.getAllObjects() || []
+      const names = allObjects.map(o => o.name).join(', ')
+      console.log('[Spline] Found', allObjects.length, 'objects:', names)
 
-    const body = app.findObjectByName('Body')
-    const cursorTarget = app.findObjectByName('Cursor Target')
-    const robot = app.findObjectByName('Robot')
-    const allObjects = app.getAllObjects()
-    const headPartNames = ['Helmet', 'Head', 'head', 'Eyes', 'ear', 'Shield']
-    const headParts = allObjects.filter(o => headPartNames.includes(o.name))
-    const collars = allObjects.filter(o => o.name === 'Collar')
-    const emotes = allObjects.filter(o => o.name.includes('Message'))
+      const canvas = document.querySelector('canvas')
+      if (canvas) {
+        canvas.style.pointerEvents = 'auto'
+      }
 
-    console.log('[Spline] Body:', !!body, '| Robot:', !!robot, '| Head Parts:', headParts.length, '| Emotes:', emotes.length)
+      const body = app.findObjectByName('Body') || app.findObjectByName('robo_body') || app.findObjectByName('Robo_body')
+      const cursorTarget = app.findObjectByName('Cursor Target') || app.findObjectByName('cursor_target')
+      const robot = app.findObjectByName('Robot') || app.findObjectByName('robo') || app.findObjectByName('Robo')
 
-    if (robot && cursorTarget) {
-      let smoothCursorX = 0
-      let smoothX = 0
-      let currentRotation = 0
+      const headPartNames = ['Helmet', 'Head', 'head', 'Eyes', 'ear', 'Shield']
+      const headParts = allObjects.filter(o => headPartNames.includes(o.name))
+      const collars = allObjects.filter(o => o.name === 'Collar' || o.name.toLowerCase().includes('collar'))
+      const emotes = allObjects.filter(o => o.name.includes('Message') || o.name.toLowerCase().includes('emote'))
 
-      const headOrigX = headParts.map(part => part.position.x)
-      const collarOrigX = collars.map(c => c.position.x)
-      const collarOrigRotZ = collars.map(c => c.rotation.z)
-      const emoteOffsetsX = emotes.map(e => e.position.x - robot.position.x)
+      console.log('[Spline] Body:', !!body, '| Robot:', !!robot, '| CursorTarget:', !!cursorTarget, '| Head Parts:', headParts.length, '| Emotes:', emotes.length)
 
-      const update = () => {
-        try {
-          smoothCursorX += (cursorTarget.position.x - smoothCursorX) * 0.08
-          const targetX = smoothCursorX * 0.6
-          smoothX += (targetX - smoothX) * 0.04
-          robot.position.x = smoothX
+      if (robot && cursorTarget) {
+        let smoothCursorX = 0
+        let smoothX = 0
+        let currentRotation = 0
 
-          let rawLeadOffset = (targetX - smoothX) * 0.07
-          const MAX_STRETCH = 12
-          const leadOffset = Math.max(-MAX_STRETCH, Math.min(MAX_STRETCH, rawLeadOffset))
+        const headOrigX = headParts.map(part => part.position.x)
+        const collarOrigX = collars.map(c => c.position.x)
+        const collarOrigRotZ = collars.map(c => c.rotation.z)
+        const emoteOffsetsX = emotes.map(e => e.position.x - robot.position.x)
 
-          headParts.forEach((part, i) => {
-            part.position.x = headOrigX[i] + leadOffset
-          })
+        const update = () => {
+          try {
+            smoothCursorX += (cursorTarget.position.x - smoothCursorX) * 0.08
+            const targetX = smoothCursorX * 0.6
+            smoothX += (targetX - smoothX) * 0.04
+            robot.position.x = smoothX
 
-          collars.forEach((collar, i) => {
-            collar.position.x = collarOrigX[i] + (leadOffset * 1)
-            collar.rotation.z = collarOrigRotZ[i] - (leadOffset * 0.01)
-          })
+            let rawLeadOffset = (targetX - smoothX) * 0.07
+            const MAX_STRETCH = 12
+            const leadOffset = Math.max(-MAX_STRETCH, Math.min(MAX_STRETCH, rawLeadOffset))
 
-          emotes.forEach((emote, i) => {
-            const targetEmoteX = smoothX + emoteOffsetsX[i]
-            emote.position.x += (targetEmoteX - emote.position.x) * 0.02
-          })
+            headParts.forEach((part, i) => {
+              part.position.x = headOrigX[i] + leadOffset
+            })
 
-          if (body) {
+            collars.forEach((collar, i) => {
+              collar.position.x = collarOrigX[i] + (leadOffset * 1)
+              collar.rotation.z = collarOrigRotZ[i] - (leadOffset * 0.01)
+            })
+
+            emotes.forEach((emote, i) => {
+              const targetEmoteX = smoothX + emoteOffsetsX[i]
+              emote.position.x += (targetEmoteX - emote.position.x) * 0.02
+            })
+
+            if (body) {
+              const targetRotation = -smoothX / 150
+              currentRotation += (targetRotation - currentRotation) * 0.08
+              body.rotation.z = currentRotation
+            }
+          } catch (e) { }
+          animFrameRef.current = requestAnimationFrame(update)
+        }
+        update()
+        console.log('[Spline] ✅ Robot movement + head lead + body rotation active')
+      } else if (body || robot) {
+        let mouseX = 0
+        const onMouseMove = (e) => {
+          mouseX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2)
+        }
+        window.addEventListener('mousemove', onMouseMove)
+
+        let currentRotation = 0
+        let smoothX = 0
+        const targetObj = robot || body
+
+        const update = () => {
+          try {
+            smoothX += (mouseX * 40 - smoothX) * 0.05
             const targetRotation = -smoothX / 150
             currentRotation += (targetRotation - currentRotation) * 0.08
-            body.rotation.z = currentRotation
-          }
-        } catch (e) { }
-        animFrameRef.current = requestAnimationFrame(update)
+            targetObj.rotation.z = currentRotation
+          } catch (e) { }
+          animFrameRef.current = requestAnimationFrame(update)
+        }
+        update()
+        console.log('[Spline] ✅ Robot mouse fallback rotation active')
+      } else {
+        console.warn('[Spline] ❌ Required objects not found.')
       }
-      update()
-      console.log('[Spline] ✅ Robot movement + head lead + body rotation active')
-    } else if (body) {
-      let mouseX = window.innerWidth / 2
-      const onMouseMove = (e) => { mouseX = e.clientX }
-      window.addEventListener('mousemove', onMouseMove)
-
-      let currentRotation = 0
-      const update = () => {
-        try {
-          const offset = (mouseX - window.innerWidth / 2) / window.innerWidth
-          const targetRotation = -offset * 2
-          currentRotation += (targetRotation - currentRotation) * 0.08
-          body.rotation.z = currentRotation
-        } catch (e) { }
-        animFrameRef.current = requestAnimationFrame(update)
-      }
-      update()
-      console.log('[Spline] ✅ Body rotation active (mouse fallback)')
-    } else {
-      console.warn('[Spline] ❌ Required objects not found.')
+    } catch (err) {
+      console.error('[Spline] Error finding objects:', err)
     }
   }
 
@@ -680,8 +692,15 @@ function HeroSection() {
                     View Projects
                     <ArrowUpRight />
                   </a>
-                  <a href="#contact" className="btn btn--outline" id="hero-cta-contact">
-                    Get in Touch
+                  <a
+                    href={cvUrl || "#contact"}
+                    target={cvUrl ? "_blank" : "_self"}
+                    rel={cvUrl ? "noreferrer" : undefined}
+                    download={cvUrl ? "CV_Farhan_Abel_Rantisi.pdf" : undefined}
+                    className="btn btn--outline"
+                    id="hero-cta-contact"
+                  >
+                    Download CV
                   </a>
                 </div>
               </div>
@@ -734,8 +753,15 @@ function HeroSection() {
             View Projects
             <ArrowUpRight />
           </a>
-          <a href="#contact" className="btn btn--outline" id="hero-cta-contact-m">
-            Get in Touch
+          <a
+            href={cvUrl || "#contact"}
+            target={cvUrl ? "_blank" : "_self"}
+            rel={cvUrl ? "noreferrer" : undefined}
+            download={cvUrl ? "CV_Farhan_Abel_Rantisi.pdf" : undefined}
+            className="btn btn--outline"
+            id="hero-cta-contact-m"
+          >
+            Download CV
           </a>
         </div>
       </div>
@@ -1539,6 +1565,7 @@ function App() {
   const [isProjectsLoading, setIsProjectsLoading] = useState(true)
   const [experiencesList, setExperiencesList] = useState(EXPERIENCES)
   const [profilePic, setProfilePic] = useState(null)
+  const [cvUrl, setCvUrl] = useState(null)
   const [currentPath, setCurrentPath] = useState(window.location.pathname)
 
   useEffect(() => {
@@ -1563,6 +1590,24 @@ function App() {
       try {
         const { data: { publicUrl } } = supabase.storage.from('project-images').getPublicUrl('profile/avatar.png')
         setProfilePic(`${publicUrl}?t=${new Date().getTime()}`)
+
+        // Fetch CV URL if available in site_settings table or storage
+        try {
+          const { data: cvSetting } = await supabase
+            .from('site_settings')
+            .select('value')
+            .eq('key', 'cv_url')
+            .maybeSingle()
+
+          if (cvSetting && cvSetting.value) {
+            setCvUrl(cvSetting.value)
+          } else {
+            const { data: { publicUrl: defaultCv } } = supabase.storage.from('project-images').getPublicUrl('cv/resume.pdf')
+            setCvUrl(defaultCv)
+          }
+        } catch (cvErr) {
+          console.log('CV fetch note:', cvErr)
+        }
 
         let { data: dbProj, error: projErr } = await supabase
           .from('projects')
@@ -1681,7 +1726,7 @@ function App() {
     <div className="app">
       <Navbar onNavClick={handleNavClick} />
       <main>
-        <HeroSection />
+        <HeroSection cvUrl={cvUrl} />
         <ProjectsSection projects={projectsList} isLoading={isProjectsLoading} onNavigate={navigate} />
         <AboutSection profilePic={profilePic} />
         <ExperienceSection experiences={experiencesList} />
