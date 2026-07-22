@@ -408,6 +408,7 @@ const SKILLS = [
   { name: 'Dart', color: '#0175C2', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/dart/dart-original.svg', icon: <DartIcon /> },
   { name: 'TypeScript', color: '#3178C6', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg', icon: <TypeScriptIcon /> },
   { name: 'React JS', color: '#61DAFB', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg', icon: <ReactIcon /> },
+  { name: 'Vite', color: '#646CFF', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg' },
   { name: 'Tailwind CSS', color: '#06B6D4', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg' },
   { name: 'Node JS', color: '#339933', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg' },
   { name: 'Express JS', color: '#111111', iconUrl: 'https://cdn.simpleicons.org/express/000000' },
@@ -1186,7 +1187,7 @@ function AboutSection({ profilePic }) {
               <em>every dimension</em>
             </h2>
             <p className="about__text">
-              Hi, I'm <strong>Farhan</strong>. I'm a developer and designer. I enjoy building things from scratch—whether it's a mobile app using Flutter or Kotlin, a website, or designing the interface in Figma.
+              Hi, I'm <strong>Farhan</strong>. I'm a developer and designer. I enjoy building things from scratch whether it's a mobile app using Flutter or Kotlin, a website, or designing the interface in Figma.
             </p>
             <p className="about__text">
               For me, good design and good code go hand in hand. I care deeply about creating digital experiences that people actually enjoy using.
@@ -1200,16 +1201,16 @@ function AboutSection({ profilePic }) {
               <div className="about__photo-container">
                 <div className="about__photo-deco about__photo-deco--circle"></div>
                 <div className="about__photo-deco about__photo-deco--dots"></div>
-                
+
                 <div className="about__photo-wrapper">
                   <img src={profilePic} alt="Farhan Abel Rantisi" className="about__profile-img" onError={(e) => e.target.style.display = 'none'} />
                 </div>
 
                 <div className="about__photo-badge about__photo-badge--tl">
                   <span className="about__photo-badge-dot"></span>
-                  Based in Jambi, ID
+                  Based in Indonesia
                 </div>
-                
+
                 <div className="about__photo-badge about__photo-badge--br">
                   <span>⚡ Mobile Developer</span>
                 </div>
@@ -1230,6 +1231,49 @@ function AboutSection({ profilePic }) {
    EXPERIENCE SECTION
    ======================================== */
 function ExperienceSection({ experiences }) {
+  const containerRef = useRef(null)
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(-1)
+
+  useEffect(() => {
+    let rafId = null
+    const handleScroll = () => {
+      if (rafId) return
+      rafId = requestAnimationFrame(() => {
+        rafId = null
+        if (!containerRef.current) return
+        const rect = containerRef.current.getBoundingClientRect()
+        const windowHeight = window.innerHeight
+
+        const startPoint = windowHeight * 0.75
+        const totalDistance = rect.height
+        const currentScroll = startPoint - rect.top
+
+        let progress = currentScroll / totalDistance
+        if (progress < 0) progress = 0
+        if (progress > 1) progress = 1
+        setScrollProgress(progress)
+
+        const itemEls = containerRef.current.querySelectorAll('.experience__item')
+        let lastActive = -1
+        itemEls.forEach((el, index) => {
+          const itemRect = el.getBoundingClientRect()
+          if (itemRect.top <= windowHeight * 0.75) {
+            lastActive = index
+          }
+        })
+        setActiveIndex(lastActive)
+      })
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [])
+
   return (
     <section className="section experience" id="experience">
       <FadeInSection className="container">
@@ -1240,19 +1284,40 @@ function ExperienceSection({ experiences }) {
             A brief look at my work history and the teams I've been a part of.
           </p>
         </div>
-        <div className="experience__list">
-          {experiences.map((exp, i) => (
-            <div key={i} className="experience__item" id={`experience-${i}`}>
-              <div className="experience__item-left">
-                <span className="experience__period">{exp.period}</span>
-              </div>
-              <div className="experience__item-right">
-                <h3 className="experience__role">{exp.role}</h3>
-                <span className="experience__company">{exp.company}</span>
-                <p className="experience__desc">{exp.description}</p>
-              </div>
-            </div>
-          ))}
+
+        <div className="experience__timeline-wrapper" ref={containerRef}>
+          <div className="experience__line-track" />
+          <div
+            className="experience__line-progress"
+            style={{ height: `${scrollProgress * 100}%` }}
+          />
+
+          <div className="experience__list">
+            {experiences.map((exp, i) => {
+              const isActive = i <= activeIndex
+              return (
+                <div
+                  key={i}
+                  className={`experience__item ${isActive ? 'experience__item--active' : ''}`}
+                  id={`experience-${i}`}
+                >
+                  <div className="experience__item-left">
+                    <span className="experience__period">{exp.period}</span>
+                  </div>
+
+                  <div className="experience__node">
+                    <span className="experience__dot" />
+                  </div>
+
+                  <div className="experience__item-right">
+                    <h3 className="experience__role">{exp.role}</h3>
+                    <span className="experience__company">{exp.company}</span>
+                    <p className="experience__desc">{exp.description}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       </FadeInSection>
     </section>
@@ -1269,7 +1334,7 @@ function TechAndGithubSection() {
         <div className="section__header">
           <span className="section__label">Skills &amp; Activity</span>
           <h2 className="section__title">What I work with</h2>
-          <p className="section__subtitle">Tools, languages, and frameworks I use daily — and my GitHub contribution history.</p>
+          <p className="section__subtitle">Tools, languages, and frameworks I use daily and my GitHub contribution history.</p>
         </div>
 
         {/* GitHub Activity — full width */}
@@ -1367,16 +1432,12 @@ function ContactSection() {
               Let's build<br />something <em>together</em>.
             </h2>
             <p className="contact__subtitle">
-              If you have a project in mind, need some help with an existing one, or just want to say hi—feel free to reach out.
+              If you have a project in mind, need some help with an existing one, or just want to say hi, feel free to reach out.
             </p>
             <div className="contact__links">
-              <a href="mailto:farhanrantisi55@gmail.com" className="contact__link" id="contact-email">
+              <a className="contact__link" id="contact-email">
                 <EmailIcon />
                 <span>farhanrantisi55@gmail.com</span>
-              </a>
-              <a href="tel:+6288269639683" className="contact__link" id="contact-phone">
-                <PhoneIcon />
-                <span>+62 882 6963 9683</span>
               </a>
               <div className="contact__link">
                 <MapPinIcon />
