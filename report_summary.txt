@@ -1,0 +1,69 @@
+=== REPORT 1: farhanabel.com-20260728T060932.json ===
+CATEGORIES:
+  Performance: 87/100
+  Accessibility: 95/100
+  Best Practices: 96/100
+  SEO: 92/100
+
+FAILED/LOW AUDITS (< 90):
+  - [first-contentful-paint] First Contentful Paint | score: 0.83 | val: 1.1 s
+  - [largest-contentful-paint] Largest Contentful Paint | score: 0.75 | val: 1.6 s
+  - [first-meaningful-paint] First Meaningful Paint | score: 0.82 | val: 1.1 s
+  - [speed-index] Speed Index | score: 0.84 | val: 1.5 s
+  - [max-potential-fid] Max Potential First Input Delay | score: 0.67 | val: 200 ms
+  - [interactive] Time to Interactive | score: 0.6 | val: 4.0 s
+  - [mainthread-work-breakdown] Minimize main-thread work | score: 0 | val: 4.0 s
+  - [bootup-time] Reduce JavaScript execution time | score: 0 | val: 1.9 s
+  - [largest-contentful-paint-element] Largest Contentful Paint element | score: 0 | val: 1,640 ms
+  - [unsized-images] Image elements do not have explicit `width` and `height` | score: 0.5 | val: 
+  - [valid-source-maps] Missing source maps for large first-party JavaScript | score: 0 | val: 
+  - [color-contrast] Background and foreground colors do not have a sufficient contrast ratio. | score: 0 | val: 
+  - [uses-long-cache-ttl] Serve static assets with an efficient cache policy | score: 0.5 | val: 24 resources found
+  - [total-byte-weight] Avoid enormous network payloads | score: 0.5 | val: Total size was 4,102 KiB
+  - [offscreen-images] Defer offscreen images | score: 0.5 | val: Potential savings of 4 KiB
+  - [render-blocking-resources] Eliminate render-blocking resources | score: 0 | val: Potential savings of 40 ms
+  - [unminified-javascript] Minify JavaScript | score: 0.5 | val: Potential savings of 84 KiB
+  - [unused-css-rules] Reduce unused CSS | score: 0 | val: Potential savings of 57 KiB
+  - [unused-javascript] Reduce unused JavaScript | score: 0 | val: Potential savings of 1,693 KiB
+  - [modern-image-formats] Serve images in next-gen formats | score: 0.5 | val: Potential savings of 339 KiB
+  - [uses-text-compression] Enable text compression | score: 0 | val: Potential savings of 2,032 KiB
+  - [uses-responsive-images] Properly size images | score: 0.5 | val: Potential savings of 755 KiB
+  - [legacy-javascript] Avoid serving legacy JavaScript to modern browsers | score: 0.5 | val: Potential savings of 36 KiB
+  - [dom-size] Avoid an excessive DOM size | score: 0.5 | val: 936 elements
+  - [inspector-issues] Issues were logged in the `Issues` panel in Chrome Devtools | score: 0 | val: 
+  - [uses-http2] Use HTTP/2 | score: 0 | val: 8 requests not served via HTTP/2
+  - [uses-passive-event-listeners] Does not use passive listeners to improve scrolling performance | score: 0.5 | val: 
+  - [robots-txt] robots.txt is not valid | score: 0 | val: 25 errors found
+  - [bf-cache] Page prevented back/forward cache restoration | score: 0 | val: 1 failure reason
+
+=== REPORT 2: farhanabel.com-20260728T061409.json ===
+CATEGORIES:
+  Performance: 89/100
+  Accessibility: 95/100
+  Best Practices: 100/100
+  SEO: 92/100
+  Agentic Browsing: 67/100
+
+FAILED/LOW AUDITS (< 90):
+  - [first-contentful-paint] First Contentful Paint | score: 0.78 | val: 1.2 s
+  - [largest-contentful-paint] Largest Contentful Paint | score: 0.87 | val: 1.3 s
+  - [speed-index] Speed Index | score: 0.49 | val: 2.3 s
+  - [max-potential-fid] Max Potential First Input Delay | score: 0.66 | val: 200 ms
+  - [interactive] Time to Interactive | score: 0.59 | val: 4.0 s
+  - [mainthread-work-breakdown] Minimize main-thread work | score: 0 | val: 2.6 s
+  - [bootup-time] Reduce JavaScript execution time | score: 0 | val: 1.7 s
+  - [unsized-images] Image elements do not have explicit `width` and `height` | score: 0.5 | val: 
+  - [valid-source-maps] Missing source maps for large first-party JavaScript | score: 0 | val: 
+  - [color-contrast] Background and foreground colors do not have a sufficient contrast ratio. | score: 0 | val: 
+  - [total-byte-weight] Avoid enormous network payloads | score: 0.5 | val: Total size was 4,107 KiB
+  - [unused-css-rules] Reduce unused CSS | score: 0 | val: Est savings of 57 KiB
+  - [unused-javascript] Reduce unused JavaScript | score: 0 | val: Est savings of 1,496 KiB
+  - [robots-txt] robots.txt is not valid | score: 0 | val: 25 errors found
+  - [llms-txt] llms.txt does not follow recommendations | score: 0 | val: 
+  - [cache-insight] Use efficient cache lifetimes | score: 0 | val: Est savings of 3,327 KiB
+  - [forced-reflow-insight] Forced reflow | score: 0 | val: 
+  - [image-delivery-insight] Improve image delivery | score: 0.5 | val: Est savings of 769 KiB
+  - [legacy-javascript-insight] Legacy JavaScript | score: 0.5 | val: Est savings of 28 KiB
+  - [modern-http-insight] Modern HTTP | score: 0 | val: Est savings of -10 ms
+  - [network-dependency-tree-insight] Network dependency tree | score: 0 | val: 
+  - [render-blocking-insight] Render-blocking requests | score: 0 | val: Est savings of 80 ms

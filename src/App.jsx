@@ -898,7 +898,7 @@ function ProjectCard({ project, index, onNavigate }) {
 
       <div className="project-card__visual" style={{ background: `${project.color}12`, cursor: 'pointer' }} onClick={() => onNavigate(`/project/${project.id}`)}>
         {(project.images?.[0] || project.image) ? (
-          <img src={project.images?.[0] || project.image} alt={project.title} className="project-card__image" loading="lazy" />
+          <img src={project.images?.[0] || project.image} alt={project.title} className="project-card__image" width="600" height="400" loading="lazy" decoding="async" />
         ) : (
           /* Placeholder jika tidak ada gambar */
           <div className="project-card__phone" style={{ borderColor: `${project.color}30` }}>
@@ -1285,7 +1285,7 @@ function AboutSection({ profilePic }) {
                 <div className="about__photo-deco about__photo-deco--dots"></div>
 
                 <div className="about__photo-wrapper">
-                  <img src={profilePic} alt="Farhan Abel Rantisi" className="about__profile-img" onError={(e) => e.target.style.display = 'none'} />
+                  <img src={profilePic} alt="Farhan Abel Rantisi" className="about__profile-img" width="400" height="400" loading="lazy" decoding="async" onError={(e) => e.target.style.display = 'none'} />
                 </div>
 
                 <div className="about__photo-badge about__photo-badge--tl">
@@ -1468,7 +1468,7 @@ function TechAndGithubSection() {
                 className="about__skill-tag"
                 style={{ '--skill-color': skill.color }}
               >
-                {skill.iconUrl ? <img src={skill.iconUrl} alt={skill.name} width="20" height="20" /> : skill.icon}
+                {skill.iconUrl ? <img src={skill.iconUrl} alt={skill.name} width="20" height="20" loading="lazy" decoding="async" /> : skill.icon}
                 <span>{skill.name}</span>
               </span>
             ))}

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /farhan-admin-secure
+
+Sitemap: https://farhanabel.com/sitemap.xml

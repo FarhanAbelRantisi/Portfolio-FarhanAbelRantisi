@@ -1,0 +1,18 @@
+# Farhan Abel Rantisi — Mobile Developer & UI/UX Designer
+
+> Crafting premium mobile and web experiences with Flutter, Kotlin, React, and TypeScript.
+
+## Profile Summary
+Farhan Abel Rantisi is an experienced Mobile Developer and UI/UX Designer based in Indonesia. He specializes in cross-platform mobile development (Flutter, Kotlin, Jetpack Compose, Dart) and modern web applications (React, TypeScript, Vite, Node.js).
+
+## Key Skills & Technologies
+- **Mobile Development**: Flutter, Kotlin, Jetpack Compose, Dart, Swift, REST API, Firebase
+- **Web & Frontend**: React.js, TypeScript, Tailwind CSS, Vite, Node.js, Express.js, FastAPI
+- **Database & Cloud**: PostgreSQL, Supabase, Firebase, Git, CI/CD
+- **Design**: Figma, UI/UX Design, Prototyping
+
+## Links & Contacts
+- Website: https://farhanabel.com
+- GitHub: https://github.com/FarhanAbelRantisi
+- LinkedIn: https://www.linkedin.com/in/farhanabelrantisi/
+- Email: farhanrantisi55@gmail.com
