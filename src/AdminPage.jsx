@@ -88,7 +88,6 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       setProjectForm(prev => ({ ...prev, images: [...prev.images, publicUrl] }))
       showStatus('Image uploaded successfully!')
     } catch (error) {
-      console.error('Upload error:', error)
       showStatus(error.message, 'error')
     } finally {
       setUploadingImage(false)
@@ -154,7 +153,6 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       setProjectForm(prev => ({ ...prev, videos: [...prev.videos, publicUrl] }))
       showStatus('Video uploaded successfully!')
     } catch (error) {
-      console.error('Video upload error:', error)
       showStatus(error.message, 'error')
     } finally {
       setUploadingVideo(false)
@@ -225,7 +223,6 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       if (expErr) throw expErr
       setExperiences(expData || [])
     } catch (error) {
-      console.error('Error fetching data:', error)
       showStatus('Failed to load database content: ' + error.message, 'error')
     } finally {
       setDataLoading(false)
@@ -347,7 +344,6 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       await fetchData()
       showStatus(`Sync successful! Uploaded ${syncProjCount} projects and ${syncExpCount} experiences.`);
     } catch (error) {
-      console.error('Error syncing:', error)
       showStatus('Sync failed: ' + error.message, 'error')
     } finally {
       setLoading(false)
@@ -565,9 +561,7 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
           const storageUrl = supabase.storage.from('project-images').getPublicUrl('cv/resume.pdf').data.publicUrl
           setCvUrl(storageUrl)
         }
-      } catch (e) {
-        console.log('CV fetch note:', e)
-      }
+      } catch (e) { }
     }
     fetchCv()
   }, [session])
@@ -640,9 +634,7 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
 
       try {
         await supabase.from('site_settings').upsert({ key: 'cv_url', value: publicUrl }, { onConflict: 'key' })
-      } catch (dbErr) {
-        console.log('site_settings upsert note:', dbErr)
-      }
+      } catch (dbErr) { }
 
       showStatus('CV file uploaded and URL saved successfully!')
     } catch (err) {

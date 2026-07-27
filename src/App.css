@@ -453,7 +453,14 @@
   width: 100%;
   height: 100%;
   transform: scale(1.05) translateY(-100px);
+  content-visibility: auto;
 }
+
+.hero__spline-bg--paused {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 
 /* Original hero (Spline mode) */
 .hero {
@@ -1492,7 +1499,8 @@
   border-radius: 3px;
   transform: translateX(-50%);
   z-index: 2;
-  transition: height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: none;
+  will-change: height;
   max-height: calc(100% - 72px);
   box-shadow: 0 0 4px rgba(16, 185, 129, 0.15);
 }

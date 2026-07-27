@@ -529,14 +529,59 @@ function HeroSection({ cvUrl }) {
   const isAndroid = getDeviceOS() === 'android'
   const [mounted, setMounted] = useState(false)
   const [splineLoaded, setSplineLoaded] = useState(false)
+  const [isHeroInView, setIsHeroInView] = useState(true)
+  const [useSpline, setUseSpline] = useState(false)
+
+  const heroRef = useRef(null)
   const animFrameRef = useRef(null)
+  const isHeroInViewRef = useRef(true)
+  const startUpdateLoopRef = useRef(null)
+  const mouseMoveHandlerRef = useRef(null)
+
+  useEffect(() => {
+    setUseSpline(isSplineCapable() && !isAndroid)
+  }, [isAndroid])
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 100)
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const inView = entry.isIntersecting
+          setIsHeroInView(inView)
+          isHeroInViewRef.current = inView
+
+          if (inView) {
+            if (startUpdateLoopRef.current && !animFrameRef.current) {
+              startUpdateLoopRef.current()
+            }
+          } else {
+            if (animFrameRef.current) {
+              cancelAnimationFrame(animFrameRef.current)
+              animFrameRef.current = null
+            }
+          }
+        })
+      },
+      { threshold: 0.05 }
+    )
+
+    const currentHero = heroRef.current
+    if (currentHero) {
+      observer.observe(currentHero)
+    }
+
     return () => {
       clearTimeout(t)
+      if (currentHero) observer.unobserve(currentHero)
       if (animFrameRef.current) {
         cancelAnimationFrame(animFrameRef.current)
+        animFrameRef.current = null
+      }
+      if (mouseMoveHandlerRef.current) {
+        window.removeEventListener('mousemove', mouseMoveHandlerRef.current)
+        mouseMoveHandlerRef.current = null
       }
     }
   }, [])
@@ -546,8 +591,6 @@ function HeroSection({ cvUrl }) {
 
     try {
       const allObjects = app.getAllObjects() || []
-      const names = allObjects.map(o => o.name).join(', ')
-      console.log('[Spline] Found', allObjects.length, 'objects:', names)
 
       const canvas = document.querySelector('canvas')
       if (canvas) {
@@ -563,8 +606,6 @@ function HeroSection({ cvUrl }) {
       const collars = allObjects.filter(o => o.name === 'Collar' || o.name.toLowerCase().includes('collar'))
       const emotes = allObjects.filter(o => o.name.includes('Message') || o.name.toLowerCase().includes('emote'))
 
-      console.log('[Spline] Body:', !!body, '| Robot:', !!robot, '| CursorTarget:', !!cursorTarget, '| Head Parts:', headParts.length, '| Emotes:', emotes.length)
-
       if (robot && cursorTarget) {
         let smoothCursorX = 0
         let smoothX = 0
@@ -576,6 +617,10 @@ function HeroSection({ cvUrl }) {
         const emoteOffsetsX = emotes.map(e => e.position.x - robot.position.x)
 
         const update = () => {
+          if (!isHeroInViewRef.current) {
+            animFrameRef.current = null
+            return
+          }
           try {
             smoothCursorX += (cursorTarget.position.x - smoothCursorX) * 0.08
             const targetX = smoothCursorX * 0.6
@@ -608,13 +653,18 @@ function HeroSection({ cvUrl }) {
           } catch (e) { }
           animFrameRef.current = requestAnimationFrame(update)
         }
-        update()
-        console.log('[Spline] ✅ Robot movement + head lead + body rotation active')
+
+        startUpdateLoopRef.current = update
+        if (isHeroInViewRef.current) {
+          update()
+        }
       } else if (body || robot) {
         let mouseX = 0
         const onMouseMove = (e) => {
+          if (!isHeroInViewRef.current) return
           mouseX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2)
         }
+        mouseMoveHandlerRef.current = onMouseMove
         window.addEventListener('mousemove', onMouseMove)
 
         let currentRotation = 0
@@ -622,6 +672,10 @@ function HeroSection({ cvUrl }) {
         const targetObj = robot || body
 
         const update = () => {
+          if (!isHeroInViewRef.current) {
+            animFrameRef.current = null
+            return
+          }
           try {
             smoothX += (mouseX * 40 - smoothX) * 0.05
             const targetRotation = -smoothX / 150
@@ -630,21 +684,22 @@ function HeroSection({ cvUrl }) {
           } catch (e) { }
           animFrameRef.current = requestAnimationFrame(update)
         }
-        update()
-        console.log('[Spline] ✅ Robot mouse fallback rotation active')
-      } else {
-        console.warn('[Spline] ❌ Required objects not found.')
+
+        startUpdateLoopRef.current = update
+        if (isHeroInViewRef.current) {
+          update()
+        }
       }
-    } catch (err) {
-      console.error('[Spline] Error finding objects:', err)
-    }
+    } catch (err) { }
   }
 
+  const showSpline = useSpline
+
   return (
-    <div className={`hero-wrapper ${isAndroid ? 'hero-wrapper--android' : ''}`}>
-      <section className="hero" id="hero">
-        {!isAndroid && (
-          <div className="hero__spline-bg" id="spline-container">
+    <div className={`hero-wrapper ${!showSpline ? 'hero-wrapper--android' : ''}`}>
+      <section className="hero" id="hero" ref={heroRef}>
+        {showSpline && (
+          <div className={`hero__spline-bg ${!isHeroInView ? 'hero__spline-bg--paused' : ''}`} id="spline-container">
             <SplineScene
               scene="https://prod.spline.design/WAeofjQyEIkU-qty/scene.splinecode"
               onLoad={handleSplineLoad}
@@ -658,7 +713,7 @@ function HeroSection({ cvUrl }) {
               <span className="hero__badge-dot"></span>
               Available for new projects
             </div>
-            <h1 className="hero__title" style={!isAndroid ? { visibility: 'hidden', height: '300px', marginBottom: '10px', overflow: 'hidden' } : {}}>
+            <h1 className="hero__title" style={showSpline ? { visibility: 'hidden', height: '300px', marginBottom: '10px', overflow: 'hidden' } : {}}>
               I'm <em className="hero__name">Farhan</em>,{' '}
               <span className="hero__title-rest">
                 a developer &amp; designer.
@@ -666,7 +721,8 @@ function HeroSection({ cvUrl }) {
             </h1>
             <div className="hero__content-bottom">
               <div className="hero__left-block">
-                <div className="hero__stats" style={!isAndroid ? { visibility: 'hidden' } : {}}>
+                <div className="hero__stats" style={showSpline ? { visibility: 'hidden' } : {}}>
+
                   <div className="hero__stat">
                     <span className="hero__stat-number">2+</span>
                     <span className="hero__stat-label">Years Experience</span>
@@ -1258,8 +1314,9 @@ function AboutSection({ profilePic }) {
    ======================================== */
 function ExperienceSection({ experiences }) {
   const containerRef = useRef(null)
-  const [scrollProgress, setScrollProgress] = useState(0)
+  const lineProgressRef = useRef(null)
   const [activeIndex, setActiveIndex] = useState(-1)
+  const lastActiveRef = useRef(-1)
 
   useEffect(() => {
     let rafId = null
@@ -1278,7 +1335,10 @@ function ExperienceSection({ experiences }) {
         let progress = currentScroll / totalDistance
         if (progress < 0) progress = 0
         if (progress > 1) progress = 1
-        setScrollProgress(progress)
+
+        if (lineProgressRef.current) {
+          lineProgressRef.current.style.height = `${progress * 100}%`
+        }
 
         const itemEls = containerRef.current.querySelectorAll('.experience__item')
         let lastActive = -1
@@ -1288,7 +1348,11 @@ function ExperienceSection({ experiences }) {
             lastActive = index
           }
         })
-        setActiveIndex(lastActive)
+
+        if (lastActive !== lastActiveRef.current) {
+          lastActiveRef.current = lastActive
+          setActiveIndex(lastActive)
+        }
       })
     }
 
@@ -1315,7 +1379,7 @@ function ExperienceSection({ experiences }) {
           <div className="experience__line-track" />
           <div
             className="experience__line-progress"
-            style={{ height: `${scrollProgress * 100}%` }}
+            ref={lineProgressRef}
           />
 
           <div className="experience__list">
@@ -1605,9 +1669,7 @@ function App() {
             const { data: { publicUrl: defaultCv } } = supabase.storage.from('project-images').getPublicUrl('cv/resume.pdf')
             setCvUrl(defaultCv)
           }
-        } catch (cvErr) {
-          console.log('CV fetch note:', cvErr)
-        }
+        } catch (cvErr) { }
 
         let { data: dbProj, error: projErr } = await supabase
           .from('projects')
@@ -1648,7 +1710,6 @@ function App() {
           setExperiencesList(dbExp)
         }
       } catch (e) {
-        console.error('Failed to load DB content, using local fallback:', e)
       } finally {
         setIsProjectsLoading(false)
       }
