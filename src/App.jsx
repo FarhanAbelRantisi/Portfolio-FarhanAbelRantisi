@@ -39,12 +39,10 @@ const getDeviceOS = () => {
 }
 
 function FadeInSection({ children, className = "" }) {
-  const isIOS = getDeviceOS() === 'ios'
   const domRef = useRef(null)
   const [isVisible, setVisible] = useState(false)
 
   useEffect(() => {
-    if (!isIOS) return;
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -52,28 +50,20 @@ function FadeInSection({ children, className = "" }) {
           observer.unobserve(entry.target)
         }
       })
-    }, { threshold: 0.02 })
+    }, { threshold: 0.05 })
 
     const current = domRef.current
     if (current) observer.observe(current)
     return () => {
       if (current) observer.unobserve(current)
     }
-  }, [isIOS])
-
-  if (isIOS) {
-    return (
-      <div
-        ref={domRef}
-        className={`${className} fade-in-section ${isVisible ? 'is-visible' : ''}`}
-      >
-        {children}
-      </div>
-    )
-  }
+  }, [])
 
   return (
-    <div className={className} data-aos="fade-up" data-aos-anchor-placement="top-bottom">
+    <div
+      ref={domRef}
+      className={`${className} fade-in-section ${isVisible ? 'is-visible' : ''}`}
+    >
       {children}
     </div>
   )
@@ -1719,11 +1709,11 @@ function App() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
-  const [scrollPos, setScrollPos] = useState(0)
+  const savedScrollPos = useRef(0)
 
   const navigate = (path) => {
     if (path.startsWith('/project/')) {
-      setScrollPos(window.scrollY)
+      savedScrollPos.current = window.scrollY
     }
     window.history.pushState({}, '', path)
     setCurrentPath(path)
@@ -1757,44 +1747,47 @@ function App() {
   }
 
   const handleBack = (projectId) => {
+    const targetY = savedScrollPos.current
     window.history.pushState({}, '', '/')
     setCurrentPath('/')
-    setTimeout(() => {
-      if (scrollPos > 0) {
-        window.scrollTo({ top: scrollPos, behavior: 'instant' })
-      } else {
+    requestAnimationFrame(() => {
+      if (targetY > 0) {
+        window.scrollTo({ top: targetY, behavior: 'instant' })
+      } else if (projectId) {
         const el = document.getElementById(`project-${projectId}`)
         if (el) el.scrollIntoView({ behavior: 'instant', block: 'center' })
       }
-    }, 10)
+    })
   }
 
-  if (currentPath.startsWith('/project/')) {
-    const projectId = currentPath.split('/')[2];
-    const project = projectsList.find(p => p.id.toString() === projectId);
-    return (
-      <>
-        <Navbar onNavClick={handleNavClick} />
-        <main>
-          <ProjectDetailPage project={project} onBack={() => handleBack(project?.id)} />
-        </main>
-        <Footer onNavClick={handleNavClick} />
-      </>
-    )
-  }
+  const isProjectDetail = currentPath.startsWith('/project/')
+  const projectId = isProjectDetail ? currentPath.split('/')[2] : null
+  const currentProject = isProjectDetail ? projectsList.find(p => p.id.toString() === projectId) : null
 
   return (
     <div className="app">
-      <Navbar onNavClick={handleNavClick} />
-      <main>
-        <HeroSection cvUrl={cvUrl} />
-        <ProjectsSection projects={projectsList} isLoading={isProjectsLoading} onNavigate={navigate} />
-        <AboutSection profilePic={profilePic} />
-        <ExperienceSection experiences={experiencesList} />
-        <TechAndGithubSection />
-        <ContactSection />
-      </main>
-      <Footer onNavClick={handleNavClick} />
+      <div style={{ display: isProjectDetail ? 'none' : 'block' }}>
+        <Navbar onNavClick={handleNavClick} />
+        <main>
+          <HeroSection cvUrl={cvUrl} />
+          <ProjectsSection projects={projectsList} isLoading={isProjectsLoading} onNavigate={navigate} />
+          <AboutSection profilePic={profilePic} />
+          <ExperienceSection experiences={experiencesList} />
+          <TechAndGithubSection />
+          <ContactSection />
+        </main>
+        <Footer onNavClick={handleNavClick} />
+      </div>
+
+      {isProjectDetail && (
+        <div className="project-detail-wrapper">
+          <Navbar onNavClick={handleNavClick} />
+          <main>
+            <ProjectDetailPage project={currentProject} onBack={() => handleBack(currentProject?.id)} />
+          </main>
+          <Footer onNavClick={handleNavClick} />
+        </div>
+      )}
     </div>
   )
 }
