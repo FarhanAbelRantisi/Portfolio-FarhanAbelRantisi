@@ -1121,55 +1121,112 @@ function ProjectDetailPage({ project, onBack }) {
         <div className="project-detail__body">
           <div className="project-detail__main">
             {slides.length > 0 && (
-              <div className="project-detail__media-container">
-                <div className="project-detail__media-slide">
-                  {slides[activeSlide].type === 'image' ? (
-                    <img
-                      src={slides[activeSlide].url}
-                      alt={project.title}
-                      className="project-detail__image"
-                      loading="lazy"
-                      onClick={() => setIsLightboxOpen(true)}
-                      style={{ cursor: 'zoom-in' }}
-                    />
-                  ) : (
-                    <video
-                      src={slides[activeSlide].url}
-                      controls
-                      autoPlay
-                      muted
-                      playsInline
-                      className="project-detail__video"
-                      onClick={(e) => { e.preventDefault(); setIsLightboxOpen(true); }}
-                      style={{ cursor: 'zoom-in' }}
-                    />
+              <>
+                <div className={`project-detail__media-container ${slides.length > 1 ? 'has-thumbnails' : ''}`}>
+                  <div className="project-detail__media-slide">
+                    {slides[activeSlide].type === 'image' ? (
+                      <img
+                        src={slides[activeSlide].url}
+                        alt={project.title}
+                        className="project-detail__image"
+                        loading="lazy"
+                        onClick={() => setIsLightboxOpen(true)}
+                        style={{ cursor: 'zoom-in' }}
+                      />
+                    ) : (
+                      <video
+                        src={slides[activeSlide].url}
+                        controls
+                        autoPlay
+                        muted
+                        playsInline
+                        className="project-detail__video"
+                        onClick={(e) => { e.preventDefault(); setIsLightboxOpen(true); }}
+                        style={{ cursor: 'zoom-in' }}
+                      />
+                    )}
+                  </div>
+                  {slides.length > 1 && (
+                    <>
+                      <button className="project-detail__arrow project-detail__arrow--left" onClick={handlePrev}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                      </button>
+                      <button className="project-detail__arrow project-detail__arrow--right" onClick={handleNext}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                      </button>
+                      <div className="project-detail__dots">
+                        {slides.map((_, idx) => (
+                          <span
+                            key={idx}
+                            onClick={() => setActiveSlide(idx)}
+                            className={`project-detail__dot ${activeSlide === idx ? 'is-active' : ''}`}
+                          />
+                        ))}
+                      </div>
+                    </>
                   )}
                 </div>
+
+                {/* EXECUTIVE FRAME THUMBNAIL NAVIGATION */}
                 {slides.length > 1 && (
-                  <>
-                    <button className="project-detail__arrow project-detail__arrow--left" onClick={handlePrev}>
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                    </button>
-                    <button className="project-detail__arrow project-detail__arrow--right" onClick={handleNext}>
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    </button>
-                    <div className="project-detail__dots">
-                      {slides.map((_, idx) => (
-                        <span
-                          key={idx}
-                          onClick={() => setActiveSlide(idx)}
-                          className={`project-detail__dot ${activeSlide === idx ? 'is-active' : ''}`}
-                        />
-                      ))}
-                    </div>
-                  </>
+                  <div className="project-detail__thumbnails">
+                    {slides.map((slide, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setActiveSlide(idx)}
+                        className={`project-detail__thumb-item ${activeSlide === idx ? 'is-active' : ''}`}
+                        title={`Slide ${idx + 1}`}
+                      >
+                        {slide.type === 'image' ? (
+                          <img src={slide.url} alt={`Thumbnail ${idx + 1}`} className="project-detail__thumb-img" />
+                        ) : (
+                          <div className="project-detail__thumb-video-wrapper">
+                            <video src={slide.url} muted className="project-detail__thumb-img" />
+                            <span className="project-detail__thumb-play-icon">▶</span>
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 )}
-              </div>
+              </>
             )}
 
             <div className="project-detail__content">
               <h3>About this project</h3>
               <p className="project-detail__desc">{project.fullDescription || project.description}</p>
+
+              {/* ROLE SECTION - HIGH VISIBILITY MODERN PILL */}
+              {project.role && (
+                <div className="project-detail__section-block role-block">
+                  <h4 className="project-detail__meta-title">My Role</h4>
+                  <div className="modern-role-pill">
+                    {/* <span className="modern-role-dot" /> */}
+                    <span className="modern-role-text">{project.role}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* KEY CONTRIBUTIONS SECTION - MODERN PILL LIST */}
+              {project.contribution && (
+                <div className="project-detail__section-block contrib-block">
+                  <h4 className="project-detail__meta-title">Key Contributions</h4>
+                  <ul className="v1-contrib-list">
+                    {project.contribution.split('\n').map((line, idx) => {
+                      let cleanText = line.trim()
+                      if (!cleanText) return null
+                      if (cleanText.startsWith('•') || cleanText.startsWith('-')) cleanText = cleanText.substring(1).trim()
+                      return (
+                        <li key={idx} className="v1-contrib-item">
+                          <span className="v1-contrib-dot" />
+                          <span>{cleanText}</span>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
 
@@ -1284,7 +1341,7 @@ function AboutSection({ profilePic }) {
                 </div>
 
                 <div className="about__photo-badge about__photo-badge--br">
-                  <span>⚡ Mobile Developer</span>
+                  <span>⚡ Software Engineer</span>
                 </div>
               </div>
             ) : (
@@ -1679,6 +1736,8 @@ function App() {
             repoLink: p.repo_link,
             projectLink: p.project_link,
             moreInfoLink: p.more_info_link,
+            role: p.role,
+            contribution: p.contribution,
             images: p.images || (p.image ? [p.image] : []),
             videos: p.videos || (p.video_url ? [p.video_url] : [])
           }))
@@ -1762,7 +1821,7 @@ function App() {
 
   const isProjectDetail = currentPath.startsWith('/project/')
   const projectId = isProjectDetail ? currentPath.split('/')[2] : null
-  const currentProject = isProjectDetail ? projectsList.find(p => p.id.toString() === projectId) : null
+  const currentProject = isProjectDetail ? projectsList.find(p => String(p.id) === String(projectId)) : null
 
   return (
     <div className="app">

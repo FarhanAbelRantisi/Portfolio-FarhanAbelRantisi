@@ -27,6 +27,8 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
     year: '',
     description: '',
     full_description: '',
+    role: '',
+    contribution: '',
     images: [],
     videos: [],
     tech: '',
@@ -313,6 +315,8 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
           year: p.year,
           description: p.description,
           full_description: p.fullDescription || p.description,
+          role: p.role || '',
+          contribution: p.contribution || '',
           images: p.image ? [p.image] : (p.images || []),
           videos: p.videoUrl ? [p.videoUrl] : (p.videos || []),
           tech: p.tech || [],
@@ -359,6 +363,8 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       year: new Date().getFullYear().toString(),
       description: '',
       full_description: '',
+      role: '',
+      contribution: '',
       images: [],
       videos: [],
       tech: '',
@@ -379,6 +385,8 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       year: proj.year || '',
       description: proj.description || '',
       full_description: proj.full_description || '',
+      role: proj.role || '',
+      contribution: proj.contribution || '',
       images: Array.isArray(proj.images) ? proj.images : (proj.image ? [proj.image] : []),
       videos: Array.isArray(proj.videos) ? proj.videos : (proj.video_url ? [proj.video_url] : []),
       tech: Array.isArray(proj.tech) ? proj.tech.join(', ') : '',
@@ -416,6 +424,8 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
       year: projectForm.year,
       description: projectForm.description,
       full_description: projectForm.full_description,
+      role: projectForm.role,
+      contribution: projectForm.contribution,
       images: projectForm.images,
       videos: projectForm.videos,
       tech: formattedTech,
@@ -427,21 +437,23 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
     }
 
     try {
-      if (currentProject) {
-        // Update
-        const { error } = await supabase
-          .from('projects')
-          .update(payload)
-          .eq('id', currentProject.id)
-        if (error) throw error
-        showStatus('Project updated successfully!')
+      let { error } = currentProject
+        ? await supabase.from('projects').update(payload).eq('id', currentProject.id)
+        : await supabase.from('projects').insert([payload])
+
+      if (error && (error.message.includes('role') || error.message.includes('contribution'))) {
+        const fallbackPayload = { ...payload }
+        delete fallbackPayload.role
+        delete fallbackPayload.contribution
+        const res = currentProject
+          ? await supabase.from('projects').update(fallbackPayload).eq('id', currentProject.id)
+          : await supabase.from('projects').insert([fallbackPayload])
+        if (res.error) throw res.error
+        showStatus('Project saved! (Catatan: Harap buat kolom "role" dan "contribution" tipe text di tabel projects Supabase Anda agar tersimpan)', 'error')
+      } else if (error) {
+        throw error
       } else {
-        // Create
-        const { error } = await supabase
-          .from('projects')
-          .insert([payload])
-        if (error) throw error
-        showStatus('Project created successfully!')
+        showStatus(currentProject ? 'Project updated successfully!' : 'Project created successfully!')
       }
       setShowProjectModal(false)
       fetchData()
@@ -1087,6 +1099,26 @@ export default function AdminPage({ hardcodedProjects = [], hardcodedExperiences
                   rows="4"
                   value={projectForm.full_description}
                   onChange={e => setProjectForm(prev => ({ ...prev, full_description: e.target.value }))}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>Role (e.g. Lead Mobile Developer, Fullstack Engineer)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Lead Mobile Developer & UI/UX Designer"
+                  value={projectForm.role}
+                  onChange={e => setProjectForm(prev => ({ ...prev, role: e.target.value }))}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>Key Contributions (Responsibilities & features built - 1 bullet per line)</label>
+                <textarea
+                  rows="4"
+                  placeholder="• Developed OCR label scanning with Google Cloud Vision&#10;• Designed mobile app wireframes and high-fidelity prototypes in Figma&#10;• Architected FastAPI backend REST APIs"
+                  value={projectForm.contribution}
+                  onChange={e => setProjectForm(prev => ({ ...prev, contribution: e.target.value }))}
                 />
               </div>
 
