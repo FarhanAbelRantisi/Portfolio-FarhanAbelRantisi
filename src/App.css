@@ -126,8 +126,6 @@
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
-  transform: translateZ(0);
-  backface-visibility: hidden;
 }
 
 .navbar__inner {
@@ -461,6 +459,29 @@
 .hero__spline-bg--paused {
   visibility: hidden !important;
   pointer-events: none !important;
+  display: none !important;
+}
+
+/* ========================================
+   GLOBAL SCROLL & GPU PERFORMANCE BOOST
+   ======================================== */
+.projects,
+.about,
+.experience,
+.tech-github,
+.contact {
+  content-visibility: auto;
+  contain-intrinsic-size: 800px;
+}
+
+.project-card,
+.experience__card,
+.tech-card,
+.contact__card,
+.navbar {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 
