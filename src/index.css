@@ -87,7 +87,8 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  text-rendering: optimizeSpeed;
+  overflow-x: hidden;
 }
 
 body {
@@ -97,6 +98,22 @@ body {
   color: var(--color-text-primary);
   background-color: var(--color-bg);
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Disable hover style recalculation & repaints during active scroll tick */
+body.is-scrolling * {
+  pointer-events: none !important;
+}
+
+/* Offscreen Section Rendering Containment */
+#projects,
+#about,
+#experience,
+#tech-stack,
+#contact {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 800px;
 }
 
 a {

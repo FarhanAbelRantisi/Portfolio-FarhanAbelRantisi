@@ -419,8 +419,16 @@ function Navbar({ onNavClick }) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
-    window.addEventListener('scroll', onScroll)
+    let lastScrolled = window.scrollY > 40
+    setScrolled(lastScrolled)
+    const onScroll = () => {
+      const isScrolled = window.scrollY > 40
+      if (isScrolled !== lastScrolled) {
+        lastScrolled = isScrolled
+        setScrolled(isScrolled)
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
@@ -1766,6 +1774,26 @@ function App() {
 
     fetchDbData()
     return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  // Ultra-Smooth 60FPS Scroll Optimization
+  useEffect(() => {
+    let scrollTimer = null
+    const handleScrollStart = () => {
+      if (!document.body.classList.contains('is-scrolling')) {
+        document.body.classList.add('is-scrolling')
+      }
+      if (scrollTimer) clearTimeout(scrollTimer)
+      scrollTimer = setTimeout(() => {
+        document.body.classList.remove('is-scrolling')
+      }, 150)
+    }
+
+    window.addEventListener('scroll', handleScrollStart, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', handleScrollStart)
+      if (scrollTimer) clearTimeout(scrollTimer)
+    }
   }, [])
 
   const savedScrollPos = useRef(0)
